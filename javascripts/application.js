@@ -124,12 +124,22 @@ var states = [stePlay, steShow];
 var actState = 0;
 var actScale = getNotes(nns.C, scales.major);
 var random;
+var btnNext = document.getElementById("next");
+var lblChordName = document.getElementById("chordName");
+
+btnNext.onkeyup = function(event) {
+	if ([13, 32].indexOf(event.keyCode) > -1) {
+		this.click();
+	}
+	console.log('Key Code:', event.keyCode);
+};
+btnNext.focus();
 
 function stePlay () {
 	console.log("NEW ROUND:");
 	stopAllPlaying(nss);
 	clearTimeout(pauseTimeout);
-    document.getElementById("chordName").innerHTML = "Guess";
+    lblChordName.innerHTML = "Guess";
     
     random = Math.floor(Math.random()* 7 );
     var notes = getTriadByScale(actScale[random],actScale);
@@ -149,7 +159,7 @@ function stePlay () {
 }
 
 function steShow () {
-    document.getElementById("chordName").innerHTML = degrees[random];
+    lblChordName.innerHTML = degrees[random];
 	actState = (actState +1) % states.length;
 }
 
