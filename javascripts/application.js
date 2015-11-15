@@ -122,31 +122,42 @@ var startTime = 0.0;
 var endTime = 10;
 var states = [stePlay, steShow];
 var actState = 0;
+var actNotes = [];
 var actScale = getNotes(nns.C, scales.major);
 var random;
-var btnNext = document.getElementById("next");
-var lblChordName = document.getElementById("chordName");
 
-btnNext.onkeyup = function(event) {
-	if ([13, 32].indexOf(event.keyCode) > -1) {
-		this.click();
-	}
-	console.log('Key Code:', event.keyCode);
-};
+var btnNext = document.getElementById("btnNext");
+var btnRepeat = document.getElementById("btnRepeat");
+var lblChordName = document.getElementById("chordName");
 btnNext.focus();
+
+function repeat () {
+	stopAllPlaying(nss);
+	clearTimeout(pauseTimeout);
+    
+    console.log("Chord Played: ", getNames(actNotes));
+    console.log("");
+    playNotes(actNotes, startTime, endTime);
+
+	pauseTimeout = setTimeout(function () {
+		for (var i = 0; i < nss.length; i++) {
+			nss[i].pause();
+		}
+	},2000);
+}
 
 function stePlay () {
 	console.log("NEW ROUND:");
 	stopAllPlaying(nss);
 	clearTimeout(pauseTimeout);
-    lblChordName.innerHTML = "Guess";
+    lblChordName.innerHTML = "?";
     
     random = Math.floor(Math.random()* 7 );
-    var notes = getTriadByScale(actScale[random],actScale);
+    actNotes = getTriadByScale(actScale[random],actScale);
     
-    console.log("Chord Played: ", getNames(notes));
+    console.log("Chord Played: ", getNames(actNotes));
     console.log("");
-    playNotes(notes, startTime, endTime);
+    playNotes(actNotes, startTime, endTime);
 
 
 	pauseTimeout = setTimeout(function () {
@@ -168,6 +179,20 @@ function next () {
 }
 
 // Bindings
-document.getElementById("next").onclick = function () {
+btnNext.onclick = function () {
 	next();
 };
+btnRepeat.onclick = function () {
+	repeat();
+};
+
+var allBtn = document.getElementsByClassName("btn");
+for (var i = 0; i < allBtn.length; i++) {
+	allBtn[i].onkeyup = listenKybd;
+}
+
+function listenKybd (event) {
+	if ([13, 32].indexOf(event.keyCode) > -1) {
+		this.click();
+	}
+}
