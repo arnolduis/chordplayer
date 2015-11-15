@@ -152,7 +152,12 @@ function stePlay () {
 	clearTimeout(pauseTimeout);
     lblChordName.innerHTML = "?";
     
-    random = Math.floor(Math.random()* 7 );
+    var newRandom = Math.floor(Math.random()* 7 );
+    while(random === newRandom){
+    	newRandom = Math.floor(Math.random()* 7 );
+    }
+    random = newRandom;
+
     actNotes = getTriadByScale(actScale[random],actScale);
     
     console.log("Chord Played: ", getNames(actNotes));
