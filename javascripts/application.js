@@ -117,6 +117,7 @@ function stopAllPlaying(samples) {
 
 // ========== Main functions ============
 var pauseTimeout;
+var cadenceTimeout;
 var segmentEnd;
 var startTime = 0.0;
 var endTime = 10;
@@ -128,11 +129,41 @@ var random;
 
 var btnNext = document.getElementById("btnNext");
 var btnRepeat = document.getElementById("btnRepeat");
+var btnCadence = document.getElementById("btnCadence");
 var lblChordName = document.getElementById("chordName");
 btnNext.focus();
 
+function playCadence () {
+
+	stopAllPlaying(nss);
+	clearTimeout(pauseTimeout);
+	clearTimeout(cadenceTimeout);
+
+	var ton = getTriadByScale(actScale[0], actScale);
+	var sub = getTriadByScale(actScale[3], actScale);
+	var dom = getTriadByScale(actScale[4], actScale);
+
+    playNotes(ton, 0.0, 0.5);
+	cadenceTimeout = setTimeout(function () {
+		stopAllPlaying(nss);
+		playNotes(sub, 0.0, 0.5);
+		cadenceTimeout = setTimeout(function () {
+			stopAllPlaying(nss);
+			playNotes(dom, 0.0, 0.5);
+			cadenceTimeout = setTimeout(function () {
+				stopAllPlaying(nss);
+				playNotes(ton, 0.0, 0.5);
+				cadenceTimeout = setTimeout(function () {
+					stopAllPlaying(nss);
+				},500);
+			},500);
+		},500);
+	},500);
+}
+
 function repeat () {
 	stopAllPlaying(nss);
+	clearTimeout(cadenceTimeout);
 	clearTimeout(pauseTimeout);
     
     console.log("Chord Played: ", getNames(actNotes));
@@ -149,6 +180,7 @@ function repeat () {
 function stePlay () {
 	console.log("NEW ROUND:");
 	stopAllPlaying(nss);
+	clearTimeout(cadenceTimeout);
 	clearTimeout(pauseTimeout);
     lblChordName.innerHTML = "?";
     
@@ -183,12 +215,15 @@ function next () {
 	states[actState](actScale);
 }
 
-// Bindings
+// =============  Bindings
 btnNext.onclick = function () {
 	next();
 };
 btnRepeat.onclick = function () {
 	repeat();
+};
+btnCadence.onclick = function () {
+	playCadence();
 };
 
 var allBtn = document.getElementsByClassName("btn");
