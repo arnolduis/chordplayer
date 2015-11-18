@@ -11,10 +11,14 @@ var scales = {
 var degrees = ["I", "II", "III", "IV", "V", "VI", "VII"];
 
 var nss = [];
-
 for (var i = 0; i < 12; i++) {
 	// console.log("./samples/mcg_f_0" + (60 + i) + ".ogg");
-	nss[i] = new Audio("./samples/mcg_f_0" + (60 + i) + ".ogg");
+	nss[i] = new Audio("./samples/2mp/mcg_f_0" + (60 + i) + ".ogg");
+}
+
+var css = [];
+for (var i = 0; i < 12; i++) {
+	css[i] = new Audio("./samples/05mp/mcg_f_0" + (60 + i) + ".ogg");
 }
 
 var nns = {
@@ -78,6 +82,31 @@ function playNotes (notes, startTime, endTime) {
     }
 }
 
+function playCadenceNotes (notes, startTime, endTime) {
+    if (notes) {
+        for (var i = 0; i < notes.length; i++) {
+            playSegment(css[notes[i]], startTime, endTime);
+        }
+    } else {
+        console.log("No notes were given");
+    }
+}
+
+function stopNotes (notes) {
+	if (notes.constructor !== Array) {
+		notes = [notes];
+	}
+	for (var i = 0; i < notes.length; i++) {
+		nss[notes[i]].pause();
+	}
+}
+
+function stopAllPlaying(samples) {
+ 	for (var i = 0; i < samples.length; i++) {
+ 		samples[i].pause();
+ 	}
+} 
+
 function getNames (notes) {
 	var noteNames = [];
 	for (var i = 0; i < notes.length; i++) {
@@ -86,38 +115,11 @@ function getNames (notes) {
 	return noteNames;
 }
 
-function fadeout(sample) {
-	var orgVol = sample.volume;
-	var vol = orgVol;
-	var volDecr = 0.1;
-	var interval = 100; // 200ms interval
-
-	var fadeoutIvl = setInterval( function() {
-	    // Reduce volume by 0.05 as long as it is above 0
-	    // This works as long as you start with a multiple of 0.05!
-	    if (vol > 0) {
-	      vol -= volDecr;
-	      sample.volume = vol;
-	    }
-	    else {
-	      // Stop the setInterval when 0 is reached
-	      clearInterval(fadeout);
-	      sample.pause();
-	      sample.volume = orgVol;
-	    }
-	}, interval);
-} 
-
-function stopAllPlaying(samples) {
- 	for (var i = 0; i < samples.length; i++) {
- 		samples[i].pause();
- 	}
-} 
 
 
 // ========== Main functions ============
-var pauseTimeout;
-var cadenceTimeout;
+var tmtPause;
+var tmtCadence;
 var segmentEnd;
 var startTime = 0.0;
 var endTime = 10;
@@ -136,41 +138,37 @@ btnNext.focus();
 function playCadence () {
 
 	stopAllPlaying(nss);
-	clearTimeout(pauseTimeout);
-	clearTimeout(cadenceTimeout);
+	clearTimeout(tmtPause);
+	clearTimeout(tmtCadence);
 
 	var ton = getTriadByScale(actScale[0], actScale);
 	var sub = getTriadByScale(actScale[3], actScale);
 	var dom = getTriadByScale(actScale[4], actScale);
 
-    playNotes(ton, 0.0, 0.5);
-	cadenceTimeout = setTimeout(function () {
-		stopAllPlaying(nss);
-		playNotes(sub, 0.0, 0.5);
-		cadenceTimeout = setTimeout(function () {
-			stopAllPlaying(nss);
-			playNotes(dom, 0.0, 0.5);
-			cadenceTimeout = setTimeout(function () {
-				stopAllPlaying(nss);
-				playNotes(ton, 0.0, 0.5);
-				cadenceTimeout = setTimeout(function () {
-					stopAllPlaying(nss);
+    playCadenceNotes(ton, 0.0, 0.5);
+	tmtCadence = setTimeout(function () {
+		playCadenceNotes(sub, 0.0, 0.5);
+		tmtCadence = setTimeout(function () {
+			playCadenceNotes(dom, 0.0, 0.5);
+			tmtCadence = setTimeout(function () {
+				playCadenceNotes(ton, 0.0, 0.5);
+				tmtCadence = setTimeout(function () {
 				},500);
 			},500);
 		},500);
-	},500);
-}
+	},500)
+;}
 
 function repeat () {
 	stopAllPlaying(nss);
-	clearTimeout(cadenceTimeout);
-	clearTimeout(pauseTimeout);
+	clearTimeout(tmtCadence);
+	clearTimeout(tmtPause);
     
     console.log("Chord Played: ", getNames(actNotes));
     console.log("");
     playNotes(actNotes, startTime, endTime);
 
-	pauseTimeout = setTimeout(function () {
+	tmtPause = setTimeout(function () {
 		for (var i = 0; i < nss.length; i++) {
 			nss[i].pause();
 		}
@@ -180,8 +178,8 @@ function repeat () {
 function stePlay () {
 	console.log("NEW ROUND:");
 	stopAllPlaying(nss);
-	clearTimeout(cadenceTimeout);
-	clearTimeout(pauseTimeout);
+	clearTimeout(tmtCadence);
+	clearTimeout(tmtPause);
     lblChordName.innerHTML = "?";
     
     var newRandom = Math.floor(Math.random()* 7 );
@@ -197,7 +195,7 @@ function stePlay () {
     playNotes(actNotes, startTime, endTime);
 
 
-	pauseTimeout = setTimeout(function () {
+	tmtPause = setTimeout(function () {
 		for (var i = 0; i < nss.length; i++) {
 			nss[i].pause();
 		}
