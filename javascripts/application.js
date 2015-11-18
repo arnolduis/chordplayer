@@ -66,16 +66,18 @@ function getType () {
 }
 
 // ===================== Play Audio
-function playSegment(sample, startTime, endTime){
-    sample.currentTime = startTime;
-    segmentEnd = endTime;
-    sample.play();
-}
+// function playSegment(sample, startTime, endTime){
+//     sample.currentTime = startTime || 0;
+//     segmentEnd = endTime;
+//     sample.play();
+// }
 
-function playNotes (notes, startTime, endTime) {
+function playNotes (notes) {
     if (notes) {
         for (var i = 0; i < notes.length; i++) {
-            playSegment(nss[notes[i]], startTime, endTime);
+            // playSegment(nss[notes[i]], startTime, endTime);
+            nss[notes[i]].currentTime = 0;
+            nss[notes[i]].play();
         }
     } else {
         console.log("No notes were given");
@@ -85,7 +87,8 @@ function playNotes (notes, startTime, endTime) {
 function playCadenceNotes (notes, startTime, endTime) {
     if (notes) {
         for (var i = 0; i < notes.length; i++) {
-            playSegment(css[notes[i]], startTime, endTime);
+            css[notes[i]].currentTime = 0;
+            css[notes[i]].play();
         }
     } else {
         console.log("No notes were given");
@@ -135,6 +138,31 @@ var btnCadence = document.getElementById("btnCadence");
 var lblChordName = document.getElementById("chordName");
 btnNext.focus();
 
+var ctrChord = document.getElementById("chord-container");
+
+for (var i = 0; i < actScale.length; i++) {
+	var btnChord = document.createElement("div");
+	btnChord.dataset.degree = i;
+	btnChord.className = "btn chord";
+	btnChord.innerHTML = nns[actScale[i]];
+	btnChord.addEventListener("click", function (event) {
+		playChord(event.srcElement.dataset.degree);
+	});
+	ctrChord.appendChild(btnChord);
+}
+
+function playChord (base) {
+		stopAllPlaying(nss);
+		clearTimeout(tmtCadence);
+		clearTimeout(tmtPause);
+
+	    var notes = getTriadByScale(actScale[base], actScale);
+	    
+	    console.log("Chord Played: ", getNames(actNotes));
+	    console.log("");
+	    playNotes(notes);	
+}
+
 function playCadence () {
 
 	stopAllPlaying(nss);
@@ -145,13 +173,13 @@ function playCadence () {
 	var sub = getTriadByScale(actScale[3], actScale);
 	var dom = getTriadByScale(actScale[4], actScale);
 
-    playCadenceNotes(ton, 0.0, 0.5);
+    playCadenceNotes(ton);
 	tmtCadence = setTimeout(function () {
-		playCadenceNotes(sub, 0.0, 0.5);
+		playCadenceNotes(sub);
 		tmtCadence = setTimeout(function () {
-			playCadenceNotes(dom, 0.0, 0.5);
+			playCadenceNotes(dom);
 			tmtCadence = setTimeout(function () {
-				playCadenceNotes(ton, 0.0, 0.5);
+				playCadenceNotes(ton);
 				tmtCadence = setTimeout(function () {
 				},500);
 			},500);
@@ -193,13 +221,6 @@ function stePlay () {
     console.log("Chord Played: ", getNames(actNotes));
     console.log("");
     playNotes(actNotes, startTime, endTime);
-
-
-	tmtPause = setTimeout(function () {
-		for (var i = 0; i < nss.length; i++) {
-			nss[i].pause();
-		}
-	},2000);
 
 	actState = (actState +1) % states.length;
 }
