@@ -21,6 +21,11 @@ for (var i = 0; i < 12; i++) {
 	css[i] = new Audio("./samples/05mp/mcg_f_0" + (60 + i) + ".ogg");
 }
 
+var bss = [];
+for (var i = 0; i < 12; i++) {
+	bss[i] = new Audio("./samples/2mp/mcg_f_0" + (48 + i) + ".ogg");
+}
+
 var nns = {
     "C" : 0 , 0 : "C" ,
     "C#": 1 , 1 : "C#",
@@ -74,6 +79,8 @@ function getType () {
 
 function playNotes (notes) {
     if (notes) {
+        bss[notes[0]].currentTime = 0;
+        bss[notes[0]].play();
         for (var i = 0; i < notes.length; i++) {
             // playSegment(nss[notes[i]], startTime, endTime);
             nss[notes[i]].currentTime = 0;
@@ -106,6 +113,7 @@ function stopNotes (notes) {
 
 function stopAllPlaying(samples) {
  	for (var i = 0; i < samples.length; i++) {
+ 		bss[i].pause();
  		samples[i].pause();
  	}
 } 
