@@ -147,8 +147,11 @@ var endTime = 10;
 var states = [stePlay, steShow];
 var actState = 0;
 var actNotes = [];
-var actScale = getNotes(nns.G, scales.major);
+var actScale = getNotes(nns.C, scales.major);
 var random;
+
+var allowedDegrees = [0, 1, 3, 4, 5, 6, 7];
+// var allowedDegrees = [0, 3, 4];
 
 var btnNext = document.getElementById("btnNext");
 var btnRepeat = document.getElementById("btnRepeat");
@@ -157,16 +160,36 @@ var lblChordName = document.getElementById("chordName");
 btnNext.focus();
 
 var ctrChord = document.getElementById("chord-container");
+init();
 
-for (var i = 0; i < actScale.length; i++) {
-	var btnChord = document.createElement("div");
-	btnChord.dataset.degree = i;
-	btnChord.className = "btn chord";
-	btnChord.innerHTML = nns[actScale[i]] + " " + dns[i];
-	btnChord.addEventListener("click", function (event) {
-		playChord(event.srcElement.dataset.degree);
-	});
-	ctrChord.appendChild(btnChord);
+
+
+
+
+// ==
+function init (options) {
+	while (ctrChord.firstChild) {
+	    ctrChord.removeChild(ctrChord.firstChild);
+	}
+
+	for (var i = 0; i < actScale.length; i++) {
+		var btnChord = document.createElement("div");
+		btnChord.dataset.degree = i;
+		btnChord.className = "btn chord";
+		btnChord.innerHTML = nns[actScale[i]] + " " + dns[i];
+		btnChord.addEventListener("click", function (event) {
+			playChord(event.srcElement.dataset.degree);
+		});
+		ctrChord.appendChild(btnChord);
+	}
+
+	
+}
+
+function changeScale (event) {
+	console.log(event.value);
+	actScale = getNotes(nns[event.value], scales.major);
+	init();
 }
 
 function playChord (base) {
@@ -229,7 +252,7 @@ function stePlay () {
     lblChordName.innerHTML = "?";
     
     var newRandom = Math.floor(Math.random()* 7 );
-    while(random === newRandom){
+    while( (random === newRandom) || (allowedDegrees.indexOf(newRandom) < 0) ){
     	newRandom = Math.floor(Math.random()* 7 );
     }
     random = newRandom;
