@@ -41,6 +41,16 @@ var nns = {
     "B" : 11, 11: "B"
 };
 
+var dns = {
+    "I"  : 0 , 0 : "I" ,
+    "II" : 1 , 1 : "II",
+    "III": 2 , 2 : "III" ,
+    "IV" : 3 , 3 : "IV",
+    "V"  : 4 , 4 : "V" ,
+    "VI" : 5 , 5 : "VI" ,
+    "VII": 6 , 6 : "VII",
+};
+
 
 function getNotes(base, type) {
 	var notes = [base];
@@ -137,7 +147,7 @@ var endTime = 10;
 var states = [stePlay, steShow];
 var actState = 0;
 var actNotes = [];
-var actScale = getNotes(nns.C, scales.major);
+var actScale = getNotes(nns.G, scales.major);
 var random;
 
 var btnNext = document.getElementById("btnNext");
@@ -152,7 +162,7 @@ for (var i = 0; i < actScale.length; i++) {
 	var btnChord = document.createElement("div");
 	btnChord.dataset.degree = i;
 	btnChord.className = "btn chord";
-	btnChord.innerHTML = nns[actScale[i]];
+	btnChord.innerHTML = nns[actScale[i]] + " " + dns[i];
 	btnChord.addEventListener("click", function (event) {
 		playChord(event.srcElement.dataset.degree);
 	});
