@@ -33,7 +33,6 @@ var dns = {
     "VII": 6 , 6 : "VII",
 };
 
-
 function getNotes(base, type) {
 	var notes = [base];
 	for (var i = 0; i < type.length; i++) {
@@ -69,70 +68,82 @@ function getType () {
 //     sample.play();
 // }
 
-var smplPiano = [];
+var smpl = {
+	piano: {},
+	guitar: {}
+};
+
+smpl.piano.notes = [];
 for (var i = 0; i < 12; i++) {
-	// console.log("./samples/mcg_f_0" + (60 + i) + ".ogg");
-	smplPiano[i] = new Audio("./samples/2mp/piano/mcg_f_0" + (60 + i) + ".ogg");
+	smpl.piano.notes[i] = new Audio("./samples/2mp/piano/mcg_f_0" + (60 + i) + ".ogg");
 }
 
-var smplPianoCadence = [];
+smpl.piano.cadence = [];
 for (var i = 0; i < 12; i++) {
-	smplPianoCadence[i] = new Audio("./samples/05mp/piano/mcg_f_0" + (60 + i) + ".ogg");
+	smpl.piano.cadence[i] = new Audio("./samples/05mp/piano/mcg_f_0" + (60 + i) + ".ogg");
 }
 
-var smplPianoBass = [];
+smpl.piano.bass = [];
 for (var i = 0; i < 12; i++) {
-	smplPianoBass[i] = new Audio("./samples/2mp/piano/mcg_f_0" + (48 + i) + ".ogg");
+	smpl.piano.bass[i] = new Audio("./samples/2mp/piano/mcg_f_0" + (48 + i) + ".ogg");
 }
 
-var smplGuitar = [];
+smpl.guitar.notes = [];
 for (var i = 0; i < 12; i++) {
-	smplGuitar[i] = new Audio("./samples/2mp/guitar/pwrchord_" + (1 + i) + ".ogg");
+	smpl.guitar.notes[i] = new Audio("./samples/2mp/guitar/pwrchord_" + (1 + i) + ".ogg");
 }
 
-var smplGuitarCadence = [];
+smpl.guitar.cadence = [];
 for (var i = 0; i < 12; i++) {
-	smplGuitarCadence[i] = new Audio("./samples/05mp/guitar/pwrchord_" + (1 + i) + ".ogg");
+	smpl.guitar.cadence[i] = new Audio("./samples/05mp/guitar/pwrchord_" + (1 + i) + ".ogg");
 }
+
+/**
+* @param notes is an array of chromatic notes
+*/
 
 function playNotes (notes) {
     if (notes) {
-        smplPianoBass[notes[0]].currentTime = 0;
-        smplPianoBass[notes[0]].play();
+    	if (smpl[actInstrument].bass) {
+        	smpl[actInstrument].bass[notes[0]].currentTime = 0;
+        	smpl[actInstrument].bass[notes[0]].play();
+    	}
         for (var i = 0; i < notes.length; i++) {
-            // playSegment(smplPiano[notes[i]], startTime, endTime);
-            smplPiano[notes[i]].currentTime = 0;
-            smplPiano[notes[i]].play();
+            smpl[actInstrument].notes[notes[i]].currentTime = 0;
+            smpl[actInstrument].notes[notes[i]].play();
         }
     } else {
         console.log("No notes were given");
     }
 }
 
-function playCadenceNotes (notes, startTime, endTime) {
+function playCadenceNotes (notes) {
     if (notes) {
         for (var i = 0; i < notes.length; i++) {
-            smplPianoCadence[notes[i]].currentTime = 0;
-            smplPianoCadence[notes[i]].play();
+            smpl[actInstrument].cadence[notes[i]].currentTime = 0;
+            smpl[actInstrument].cadence[notes[i]].play();
         }
     } else {
         console.log("No notes were given");
     }
 }
 
-function stopNotes (notes) {
-	if (notes.constructor !== Array) {
-		notes = [notes];
-	}
-	for (var i = 0; i < notes.length; i++) {
-		smplPiano[notes[i]].pause();
-	}
-}
+// function stopNotes (notes) {
+// 	if (notes.constructor !== Array) {
+// 		notes = [notes];
+// 	}
+// 	for (var i = 0; i < notes.length; i++) {
+// 		smpl.piano[notes[i]].pause();
+// 	}
+// }
 
-function stopAllPlaying(samples) {
- 	for (var i = 0; i < samples.length; i++) {
- 		smplPianoBass[i].pause();
- 		samples[i].pause();
+function stopAllPlaying() {
+ 	for (var i = 0; i < 12; i++) {
+ 		smpl.piano.notes[i].pause();
+ 		smpl.piano.bass[i].pause();
+ 		smpl.piano.cadence[i].pause();
+ 		smpl.guitar.notes[i].pause();
+ 		smpl.guitar.cadence[i].pause();
  	}
 } 
 
@@ -147,15 +158,11 @@ function getNames (notes) {
 
 
 // ========== Main functions ============
-var tmtPause;
-var tmtCadence;
-var segmentEnd;
-var startTime = 0.0;
-var endTime = 10;
+var toutCadence;
 var states = [stePlay, steShow];
 var actState = 0;
 var actNotes = [];
-var actInstrument = "Piano";
+var actInstrument = "guitar";
 var actScale = getNotes(nns.C, scales.major);
 var random;
 
@@ -195,69 +202,74 @@ function init (options) {
 	
 }
 
-function changeScale (event) {
-	console.log(event.value);
-	actScale = getNotes(nns[event.value], scales.major);
-	init();
-}
 
-function playChord (base) { //ttt
-		stopAllPlaying(smplPiano);
-		clearTimeout(tmtCadence);
-		clearTimeout(tmtPause);
+function playChord (base) { 
+		stopAllPlaying();
+		clearTimeout(toutCadence);
 
-	    var notes = getTriadByScale(actScale[base], actScale);
+		// Guitars only have whole chord samples, no need to get individual notes
+		var notes = [];
+		if (actInstrument !== "guitar") {
+	    	notes = getTriadByScale(actScale[base], actScale);
+		} else {
+			notes = [actScale[base]];
+		}
+
 	    
 	    console.log("Chord Played: ", getNames(actNotes));
 	    console.log("");
 	    playNotes(notes);	
 }
 
-function playCadence () {//ttt
+function playCadence () {
 
-	stopAllPlaying(smplPiano);
-	clearTimeout(tmtPause);
-	clearTimeout(tmtCadence);
+	stopAllPlaying();
+	clearTimeout(toutCadence);
 
-	var ton = getTriadByScale(actScale[0], actScale);
-	var sub = getTriadByScale(actScale[3], actScale);
-	var dom = getTriadByScale(actScale[4], actScale);
+
+	// Guitars only have whole chord samples, no need to get individual notes
+	var ton = [];
+	var sub = [];
+	var dom = [];
+	if (actInstrument !== "guitar") {
+    	notes = getTriadByScale(actScale[base], actScale);
+		ton = getTriadByScale(actScale[0], actScale);
+		sub = getTriadByScale(actScale[3], actScale);
+		dom = getTriadByScale(actScale[4], actScale);
+	} else {
+		ton = [actScale[0]];
+		sub = [actScale[3]];
+		dom = [actScale[4]];
+	}
 
     playCadenceNotes(ton);
-	tmtCadence = setTimeout(function () {
+	toutCadence = setTimeout(function () {
 		playCadenceNotes(sub);
-		tmtCadence = setTimeout(function () {
+		toutCadence = setTimeout(function () {
 			playCadenceNotes(dom);
-			tmtCadence = setTimeout(function () {
+			toutCadence = setTimeout(function () {
 				playCadenceNotes(ton);
-				tmtCadence = setTimeout(function () {
+				toutCadence = setTimeout(function () {
 				},500);
 			},500);
 		},500);
 	},500)
 ;}
 
-function repeat () {//ttt
-	stopAllPlaying(smplPiano);
-	clearTimeout(tmtCadence);
-	clearTimeout(tmtPause);
+function repeat () {
+	stopAllPlaying();
+	clearTimeout(toutCadence);
     
     console.log("Chord Played: ", getNames(actNotes));
     console.log("");
-    playNotes(actNotes, startTime, endTime);
+    playNotes(actNotes);
 
-	tmtPause = setTimeout(function () {
-		for (var i = 0; i < smplPiano.length; i++) {
-			smplPiano[i].pause();
-		}
-	},2000);
 }
 
-function stePlay () {//ttt
+function stePlay () {
 	console.log("NEW ROUND:");
-	stopAllPlaying(smplPiano);
-	clearTimeout(tmtCadence);
-	clearTimeout(tmtPause);
+	stopAllPlaying();
+	clearTimeout(toutCadence);
     lblChordName.innerHTML = "?";
     
     var newRandom = Math.floor(Math.random()* 7 );
@@ -266,11 +278,16 @@ function stePlay () {//ttt
     }
     random = newRandom;
 
-    actNotes = getTriadByScale(actScale[random],actScale);
+    // Guitar samples only have whole powerchords, so no need to get note series
+    if (actInstrument !== "guitar") {
+    	actNotes = getTriadByScale(actScale[random],actScale);
+    } else {
+    	actNotes = [actScale[random]];
+    }
     
     console.log("Chord Played: ", getNames(actNotes));
     console.log("");
-    playNotes(actNotes, startTime, endTime);
+    playNotes(actNotes);
 
 	actState = (actState +1) % states.length;
 }
@@ -284,7 +301,14 @@ function next () {
 	states[actState](actScale);
 }
 
+
+function changeScale (event) {
+	actScale = getNotes(nns[event.value], scales.major);
+	init();
+}
+
 // =============  Bindings
+
 btnNext.onclick = function () {
 	next();
 };
