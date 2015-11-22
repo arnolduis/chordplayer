@@ -70,7 +70,8 @@ function getType () {
 
 var smpl = {
 	piano: {},
-	guitar: {}
+	guitar: {},
+	strings: {}
 };
 
 smpl.piano.notes = [];
@@ -96,6 +97,21 @@ for (var i = 0; i < 12; i++) {
 smpl.guitar.cadence = [];
 for (var i = 0; i < 12; i++) {
 	smpl.guitar.cadence[i] = new Audio("./samples/05mp/guitar/pwrchord_" + (1 + i) + ".ogg");
+}
+
+smpl.strings.notes = [];
+for (var i = 0; i < 12; i++) {
+	smpl.strings.notes[i] = new Audio("samples/2mp/strings/string_0" + (84 + i) + ".ogg");	
+}
+
+smpl.strings.bass = [];
+for (var i = 0; i < 12; i++) {
+	smpl.strings.bass[i] = new Audio("./samples/2mp/strings/string_0" + (72 + i) + ".ogg");
+}
+
+smpl.strings.cadence = [];
+for (var i = 0; i < 12; i++) {
+	smpl.strings.cadence[i] = new Audio("./samples/05mp/strings/string_0" + (72 + i) + ".ogg");
 }
 
 /**
@@ -138,12 +154,17 @@ function playCadenceNotes (notes, instrument) {
 // }
 
 function stopAllPlaying() {
- 	for (var i = 0; i < 12; i++) {
- 		smpl.piano.notes[i].pause();
- 		smpl.piano.bass[i].pause();
- 		smpl.piano.cadence[i].pause();
- 		smpl.guitar.notes[i].pause();
- 		smpl.guitar.cadence[i].pause();
+ 	for (var i in smpl) {
+ 		for (var j in smpl[i]) {
+ 			for (var k = 0; k < smpl[i][j].length; k++) {
+ 				smpl[i][j][k].pause();
+ 			}
+ 		}
+ 		// smpl.piano.notes[i].pause();
+ 		// smpl.piano.bass[i].pause();
+ 		// smpl.piano.cadence[i].pause();
+ 		// smpl.guitar.notes[i].pause();
+ 		// smpl.guitar.cadence[i].pause();
  	}
 } 
 
@@ -217,9 +238,9 @@ function playChord (base) {
 	    console.log("");
 	    for (var i = 0; i < selectedInstruments.length; i++) {
 	    	if (selectedInstruments[i] === "guitar") {
-	    		playNotes([notes[0]],  "guitar");	
+	    		playNotes([notes[0]],  selectedInstruments[i]);	
 	    	} else {
-			    playNotes(notes, "piano");	
+			    playNotes(notes, selectedInstruments[i]);	
 	    	}
 	    }
 }
@@ -237,33 +258,33 @@ function playCadence () {
 
 	for (var i = 0; i < selectedInstruments.length; i++) {
     	if (selectedInstruments[i] === "guitar") {
-    		playCadenceNotes([tons[0]],  "guitar");	
+    		playCadenceNotes([tons[0]],  selectedInstruments[i]);	
     	} else {
-		    playCadenceNotes(tons, "piano");	
+		    playCadenceNotes(tons, selectedInstruments[i]);	
     	}
     }
 	toutCadence = setTimeout(function () {
 		for (var i = 0; i < selectedInstruments.length; i++) {
 	    	if (selectedInstruments[i] === "guitar") {
-	    		playCadenceNotes([subs[0]],  "guitar");	
+	    		playCadenceNotes([subs[0]],  selectedInstruments[i]);	
 	    	} else {
-			    playCadenceNotes(subs, "piano");	
+			    playCadenceNotes(subs, selectedInstruments[i]);	
 	    	}
 	    }
 		toutCadence = setTimeout(function () {
 			for (var i = 0; i < selectedInstruments.length; i++) {
 		    	if (selectedInstruments[i] === "guitar") {
-		    		playCadenceNotes([doms[0]],  "guitar");	
+		    		playCadenceNotes([doms[0]],  selectedInstruments[i]);	
 		    	} else {
-				    playCadenceNotes(doms, "piano");	
+				    playCadenceNotes(doms, selectedInstruments[i]);	
 		    	}
 		    }
 			toutCadence = setTimeout(function () {
 				for (var i = 0; i < selectedInstruments.length; i++) {
 			    	if (selectedInstruments[i] === "guitar") {
-			    		playCadenceNotes([tons[0]],  "guitar");	
+			    		playCadenceNotes([tons[0]],  selectedInstruments[i]);	
 			    	} else {
-					    playCadenceNotes(tons, "piano");	
+					    playCadenceNotes(tons, selectedInstruments[i]);	
 			    	}
 			    }
 				toutCadence = setTimeout(function () {
@@ -281,9 +302,9 @@ function repeat () {
     console.log("");
 	for (var i = 0; i < selectedInstruments.length; i++) {
     	if (selectedInstruments[i] === "guitar") {
-    		playNotes([actNotes[0]],  "guitar");	
+    		playNotes([actNotes[0]],  selectedInstruments[i]);	
     	} else {
-		    playNotes(actNotes, "piano");	
+		    playNotes(actNotes, selectedInstruments[i]);	
     	}
     }
 
@@ -314,9 +335,9 @@ function stePlay () {
 
     for (var i = 0; i < selectedInstruments.length; i++) {
     	if (selectedInstruments[i] === "guitar") {
-    		playNotes([actNotes[0]],  "guitar");	
+    		playNotes([actNotes[0]],  selectedInstruments[i]);	
     	} else {
-		    playNotes(actNotes, "piano");	
+		    playNotes(actNotes, selectedInstruments[i]);	
     	}
     }
 
