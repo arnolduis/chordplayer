@@ -226,7 +226,10 @@ function init (options) {
 	}
 }
 
-
+/**
+ * Plays a chord based on a diatonic scale degree
+ * @param  {number} base diatonic degree
+ */
 function playChord (base) { 
 		stopAllPlaying();
 		clearTimeout(toutCadence);
@@ -406,6 +409,13 @@ function listenKybd (event) {
 		this.click();
 	}
 }
+
+document.body.onkeydown = function (event) {
+	var key = event.keyCode || event.which;
+	if (key < 56) {
+		playChord(key-49);
+	}
+};
 
 for (i in smpl) {
 	var optInstrument = document.createElement("option");
