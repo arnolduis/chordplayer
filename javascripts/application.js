@@ -102,26 +102,26 @@ for (var i = 0; i < 12; i++) {
 * @param notes is an array of chromatic notes
 */
 
-function playNotes (notes) {
+function playNotes (notes, instrument) {
     if (notes) {
-    	if (smpl[actInstrument].bass) {
-        	smpl[actInstrument].bass[notes[0]].currentTime = 0;
-        	smpl[actInstrument].bass[notes[0]].play();
+    	if (smpl[instrument].bass) {
+        	smpl[instrument].bass[notes[0]].currentTime = 0;
+        	smpl[instrument].bass[notes[0]].play();
     	}
         for (var i = 0; i < notes.length; i++) {
-            smpl[actInstrument].notes[notes[i]].currentTime = 0;
-            smpl[actInstrument].notes[notes[i]].play();
+            smpl[instrument].notes[notes[i]].currentTime = 0;
+            smpl[instrument].notes[notes[i]].play();
         }
     } else {
         console.log("No notes were given");
     }
 }
 
-function playCadenceNotes (notes) {
+function playCadenceNotes (notes, instrument) {
     if (notes) {
         for (var i = 0; i < notes.length; i++) {
-            smpl[actInstrument].cadence[notes[i]].currentTime = 0;
-            smpl[actInstrument].cadence[notes[i]].play();
+            smpl[instrument].cadence[notes[i]].currentTime = 0;
+            smpl[instrument].cadence[notes[i]].play();
         }
     } else {
         console.log("No notes were given");
@@ -162,7 +162,8 @@ var toutCadence;
 var states = [stePlay, steShow];
 var actState = 0;
 var actNotes = [];
-var actInstrument = "guitar";
+// var actInstrument = "guitar";
+var selectedInstruments = ["piano"];
 var actScale = getNotes(nns.C, scales.major);
 var random;
 
@@ -173,22 +174,26 @@ var btnNext = document.getElementById("btnNext");
 var btnRepeat = document.getElementById("btnRepeat");
 var btnCadence = document.getElementById("btnCadence");
 var lblChordName = document.getElementById("chordName");
-btnNext.focus();
-
+var sctInstruments = document.getElementById("sctInstruments");
 var ctrChord = document.getElementById("chord-container");
-init();
 
+
+btnNext.focus();
+init();
 
 
 
 
 // ==
 function init (options) {
+	var i;
+
 	while (ctrChord.firstChild) {
 	    ctrChord.removeChild(ctrChord.firstChild);
 	}
 
-	for (var i = 0; i < actScale.length; i++) {
+
+	for (i = 0; i < actScale.length; i++) {
 		var btnChord = document.createElement("div");
 		btnChord.dataset.degree = i;
 		btnChord.className = "btn chord";
@@ -198,8 +203,6 @@ function init (options) {
 		});
 		ctrChord.appendChild(btnChord);
 	}
-
-	
 }
 
 
@@ -208,17 +211,17 @@ function playChord (base) {
 		clearTimeout(toutCadence);
 
 		// Guitars only have whole chord samples, no need to get individual notes
-		var notes = [];
-		if (actInstrument !== "guitar") {
-	    	notes = getTriadByScale(actScale[base], actScale);
-		} else {
-			notes = [actScale[base]];
-		}
-
+		var notes = getTriadByScale(actScale[base], actScale);
 	    
 	    console.log("Chord Played: ", getNames(actNotes));
 	    console.log("");
-	    playNotes(notes);	
+	    for (var i = 0; i < selectedInstruments.length; i++) {
+	    	if (selectedInstruments[i] === "guitar") {
+	    		playNotes([notes[0]],  "guitar");	
+	    	} else {
+			    playNotes(notes, "piano");	
+	    	}
+	    }
 }
 
 function playCadence () {
@@ -228,27 +231,41 @@ function playCadence () {
 
 
 	// Guitars only have whole chord samples, no need to get individual notes
-	var ton = [];
-	var sub = [];
-	var dom = [];
-	if (actInstrument !== "guitar") {
-    	notes = getTriadByScale(actScale[base], actScale);
-		ton = getTriadByScale(actScale[0], actScale);
-		sub = getTriadByScale(actScale[3], actScale);
-		dom = getTriadByScale(actScale[4], actScale);
-	} else {
-		ton = [actScale[0]];
-		sub = [actScale[3]];
-		dom = [actScale[4]];
-	}
+	var tons = getTriadByScale(actScale[0], actScale);
+	var subs = getTriadByScale(actScale[3], actScale);
+	var doms = getTriadByScale(actScale[4], actScale);
 
-    playCadenceNotes(ton);
+	for (var i = 0; i < selectedInstruments.length; i++) {
+    	if (selectedInstruments[i] === "guitar") {
+    		playCadenceNotes([tons[0]],  "guitar");	
+    	} else {
+		    playCadenceNotes(tons, "piano");	
+    	}
+    }
 	toutCadence = setTimeout(function () {
-		playCadenceNotes(sub);
+		for (var i = 0; i < selectedInstruments.length; i++) {
+	    	if (selectedInstruments[i] === "guitar") {
+	    		playCadenceNotes([subs[0]],  "guitar");	
+	    	} else {
+			    playCadenceNotes(subs, "piano");	
+	    	}
+	    }
 		toutCadence = setTimeout(function () {
-			playCadenceNotes(dom);
+			for (var i = 0; i < selectedInstruments.length; i++) {
+		    	if (selectedInstruments[i] === "guitar") {
+		    		playCadenceNotes([doms[0]],  "guitar");	
+		    	} else {
+				    playCadenceNotes(doms, "piano");	
+		    	}
+		    }
 			toutCadence = setTimeout(function () {
-				playCadenceNotes(ton);
+				for (var i = 0; i < selectedInstruments.length; i++) {
+			    	if (selectedInstruments[i] === "guitar") {
+			    		playCadenceNotes([tons[0]],  "guitar");	
+			    	} else {
+					    playCadenceNotes(tons, "piano");	
+			    	}
+			    }
 				toutCadence = setTimeout(function () {
 				},500);
 			},500);
@@ -262,7 +279,13 @@ function repeat () {
     
     console.log("Chord Played: ", getNames(actNotes));
     console.log("");
-    playNotes(actNotes);
+	for (var i = 0; i < selectedInstruments.length; i++) {
+    	if (selectedInstruments[i] === "guitar") {
+    		playNotes([actNotes[0]],  "guitar");	
+    	} else {
+		    playNotes(actNotes, "piano");	
+    	}
+    }
 
 }
 
@@ -279,15 +302,18 @@ function stePlay () {
     random = newRandom;
 
     // Guitar samples only have whole powerchords, so no need to get note series
-    if (actInstrument !== "guitar") {
-    	actNotes = getTriadByScale(actScale[random],actScale);
-    } else {
-    	actNotes = [actScale[random]];
-    }
+   	actNotes = getTriadByScale(actScale[random],actScale);
     
     console.log("Chord Played: ", getNames(actNotes));
     console.log("");
-    playNotes(actNotes);
+
+    for (var i = 0; i < selectedInstruments.length; i++) {
+    	if (selectedInstruments[i] === "guitar") {
+    		playNotes([actNotes[0]],  "guitar");	
+    	} else {
+		    playNotes(actNotes, "piano");	
+    	}
+    }
 
 	actState = (actState +1) % states.length;
 }
@@ -301,11 +327,24 @@ function next () {
 	states[actState](actScale);
 }
 
-
+// Nyeh.....................ttt
 function changeScale (event) {
 	actScale = getNotes(nns[event.value], scales.major);
 	init();
 }
+
+function selectInstruments (sel) {
+	var opts = [];
+
+	for (var i = 0; i < sel.options.length; i++) {
+		if (sel.options[i].selected) {
+			opts.push(sel.options[i].value);
+		}
+	}
+
+	selectedInstruments = opts;
+}
+
 
 // =============  Bindings
 
@@ -328,4 +367,11 @@ function listenKybd (event) {
 	if ([13, 32].indexOf(event.keyCode) > -1) {
 		this.click();
 	}
+}
+
+for (i in smpl) {
+	var optInstrument = document.createElement("option");
+	optInstrument.value = i;
+	optInstrument.innerHTML = i;
+	sctInstruments.appendChild(optInstrument);
 }
