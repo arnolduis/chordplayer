@@ -220,6 +220,15 @@ function init (options) {
 	rngeVolume.value = actVolume * 100;
 
 	setOnAllSamples("volume", actVolume);
+
+	for (i in smpl) {
+		var optInstrument = document.createElement("option");
+		optInstrument.value = i;
+		optInstrument.innerHTML = i;
+		sctInstruments.appendChild(optInstrument);
+	}
+
+	sctInstruments.options[0].selected = "selected";
 }
 
 /**
@@ -438,9 +447,3 @@ document.body.onkeydown = function (event) {
 	}
 };
 
-for (i in smpl) {
-	var optInstrument = document.createElement("option");
-	optInstrument.value = i;
-	optInstrument.innerHTML = i;
-	sctInstruments.appendChild(optInstrument);
-}
