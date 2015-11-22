@@ -294,12 +294,17 @@ function stePlay () {
 	stopAllPlaying();
 	clearTimeout(toutCadence);
     lblChordName.innerHTML = "?";
-    
-    var newRandom = Math.floor(Math.random()* 7 );
-    while( (random === newRandom) || (allowedDegrees.indexOf(newRandom) < 0) ){
-    	newRandom = Math.floor(Math.random()* 7 );
+
+    if (allowedDegrees.length === 1) {
+    	random = allowedDegrees[0];
+    } else {
+	    var newRandom = Math.floor(Math.random()* 7 );
+	    while( (random === newRandom) || (allowedDegrees.indexOf(newRandom) < 0)  ){
+	    	newRandom = Math.floor(Math.random()* 7 );
+	    }
+	    random = newRandom;
     }
-    random = newRandom;
+    
 
     // Guitar samples only have whole powerchords, so no need to get note series
    	actNotes = getTriadByScale(actScale[random],actScale);
@@ -343,6 +348,18 @@ function selectInstruments (sel) {
 	}
 
 	selectedInstruments = opts;
+}
+
+function selectDegrees (sel) {
+	var opts = [];
+
+	for (var i = 0; i < sel.options.length; i++) {
+		if (sel.options[i].selected) {
+			opts.push(parseInt(sel.options[i].value));
+		}
+	}
+
+	allowedDegrees = opts;
 }
 
 
