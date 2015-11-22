@@ -189,6 +189,12 @@ var sctInstruments = document.getElementById("sctInstruments");
 var ctrChord = document.getElementById("chord-container");
 var rngeVolume = document.getElementById("rngeVolume");
 
+for (i in smpl) {
+	var optInstrument = document.createElement("option");
+	optInstrument.value = i;
+	optInstrument.innerHTML = i;
+	sctInstruments.appendChild(optInstrument);
+}
 
 btnNext.focus();
 init();
@@ -221,12 +227,7 @@ function init (options) {
 
 	setOnAllSamples("volume", actVolume);
 
-	for (i in smpl) {
-		var optInstrument = document.createElement("option");
-		optInstrument.value = i;
-		optInstrument.innerHTML = i;
-		sctInstruments.appendChild(optInstrument);
-	}
+
 
 	sctInstruments.options[0].selected = "selected";
 }
