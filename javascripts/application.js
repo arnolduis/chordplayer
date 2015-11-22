@@ -62,12 +62,6 @@ function getType () {
 }
 
 // ===================== Sampler ==================================
-// function playSegment(sample, startTime, endTime){
-//     sample.currentTime = startTime || 0;
-//     segmentEnd = endTime;
-//     sample.play();
-// }
-
 var smpl = {
 	piano: {},
 	guitar: {},
@@ -154,18 +148,14 @@ function playCadenceNotes (notes, instrument) {
 // }
 
 function stopAllPlaying() {
- 	for (var i in smpl) {
- 		for (var j in smpl[i]) {
- 			for (var k = 0; k < smpl[i][j].length; k++) {
- 				smpl[i][j][k].pause();
- 			}
- 		}
- 		// smpl.piano.notes[i].pause();
- 		// smpl.piano.bass[i].pause();
- 		// smpl.piano.cadence[i].pause();
- 		// smpl.guitar.notes[i].pause();
- 		// smpl.guitar.cadence[i].pause();
- 	}
+ 	// for (var i in smpl) {
+ 	// 	for (var j in smpl[i]) {
+ 	// 		for (var k = 0; k < smpl[i][j].length; k++) {
+ 	// 			smpl[i][j][k].pause();
+ 	// 		}
+ 	// 	}
+ 	// }
+ 	callOnAllSamples("pause");
 } 
 
 function getNames (notes) {
@@ -183,7 +173,7 @@ var toutCadence;
 var states = [stePlay, steShow];
 var actState = 0;
 var actNotes = [];
-// var actInstrument = "guitar";
+var actVolume = 0.3;
 var selectedInstruments = ["piano"];
 var actScale = getNotes(nns.C, scales.major);
 var random;
@@ -197,6 +187,7 @@ var btnCadence = document.getElementById("btnCadence");
 var lblChordName = document.getElementById("chordName");
 var sctInstruments = document.getElementById("sctInstruments");
 var ctrChord = document.getElementById("chord-container");
+var rngeVolume = document.getElementById("rngeVolume");
 
 
 btnNext.focus();
@@ -213,17 +204,22 @@ function init (options) {
 	    ctrChord.removeChild(ctrChord.firstChild);
 	}
 
+	function evlrPlayChord (event) {
+		playChord(event.srcElement.dataset.degree);
+	}
 
 	for (i = 0; i < actScale.length; i++) {
 		var btnChord = document.createElement("div");
 		btnChord.dataset.degree = i;
 		btnChord.className = "btn chord";
 		btnChord.innerHTML = nns[actScale[i]] + " " + dns[i];
-		btnChord.addEventListener("click", function (event) {
-			playChord(event.srcElement.dataset.degree);
-		});
+		btnChord.addEventListener("click", evlrPlayChord);
 		ctrChord.appendChild(btnChord);
 	}
+
+	rngeVolume.value = actVolume * 100;
+
+	setOnAllSamples("volume", actVolume);
 }
 
 /**
@@ -357,6 +353,27 @@ function next () {
 }
 
 // Nyeh.....................ttt
+
+function setOnAllSamples (myVariable, arg1) {
+	 for (var i in smpl) {
+ 		for (var j in smpl[i]) {
+ 			for (var k = 0; k < smpl[i][j].length; k++) {
+ 				smpl[i][j][k][myVariable] = arg1;
+ 			}
+ 		}
+ 	}
+}
+
+function callOnAllSamples (myFunc, arg1, arg2, arg3, arg4) {
+	 for (var i in smpl) {
+ 		for (var j in smpl[i]) {
+ 			for (var k = 0; k < smpl[i][j].length; k++) {
+ 				smpl[i][j][k][myFunc](arg1, arg2, arg3, arg4);
+ 			}
+ 		}
+ 	}
+}
+
 function changeScale (event) {
 	actScale = getNotes(nns[event.value], scales.major);
 	init();
@@ -386,6 +403,10 @@ function selectDegrees (sel) {
 	allowedDegrees = opts;
 }
 
+function setVolume (event) {
+	console.log(event.value);
+	setOnAllSamples("volume", event.value/100);
+}
 
 // =============  Bindings
 
