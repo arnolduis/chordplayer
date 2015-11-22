@@ -1,4 +1,4 @@
-// Generate note and scale numbers
+// =============  Harmonic logic ==================
 var chords = {
 	minor: [3, 7],
 	major: [4, 7]
@@ -7,24 +7,6 @@ var chords = {
 var scales = {
 	major: [2, 4, 5, 7, 9, 11]
 };
-
-var degrees = ["I", "II", "III", "IV", "V", "VI", "VII"];
-
-var nss = [];
-for (var i = 0; i < 12; i++) {
-	// console.log("./samples/mcg_f_0" + (60 + i) + ".ogg");
-	nss[i] = new Audio("./samples/2mp/mcg_f_0" + (60 + i) + ".ogg");
-}
-
-var css = [];
-for (var i = 0; i < 12; i++) {
-	css[i] = new Audio("./samples/05mp/mcg_f_0" + (60 + i) + ".ogg");
-}
-
-var bss = [];
-for (var i = 0; i < 12; i++) {
-	bss[i] = new Audio("./samples/2mp/mcg_f_0" + (48 + i) + ".ogg");
-}
 
 var nns = {
     "C" : 0 , 0 : "C" ,
@@ -80,21 +62,47 @@ function getType () {
 	// body...
 }
 
-// ===================== Play Audio
+// ===================== Sampler ==================================
 // function playSegment(sample, startTime, endTime){
 //     sample.currentTime = startTime || 0;
 //     segmentEnd = endTime;
 //     sample.play();
 // }
 
+var smplPiano = [];
+for (var i = 0; i < 12; i++) {
+	// console.log("./samples/mcg_f_0" + (60 + i) + ".ogg");
+	smplPiano[i] = new Audio("./samples/2mp/piano/mcg_f_0" + (60 + i) + ".ogg");
+}
+
+var smplPianoCadence = [];
+for (var i = 0; i < 12; i++) {
+	smplPianoCadence[i] = new Audio("./samples/05mp/piano/mcg_f_0" + (60 + i) + ".ogg");
+}
+
+var smplPianoBass = [];
+for (var i = 0; i < 12; i++) {
+	smplPianoBass[i] = new Audio("./samples/2mp/piano/mcg_f_0" + (48 + i) + ".ogg");
+}
+
+var smplGuitar = [];
+for (var i = 0; i < 12; i++) {
+	smplGuitar[i] = new Audio("./samples/2mp/guitar/pwrchord_" + (1 + i) + ".ogg");
+}
+
+var smplGuitarCadence = [];
+for (var i = 0; i < 12; i++) {
+	smplGuitarCadence[i] = new Audio("./samples/05mp/guitar/pwrchord_" + (1 + i) + ".ogg");
+}
+
 function playNotes (notes) {
     if (notes) {
-        bss[notes[0]].currentTime = 0;
-        bss[notes[0]].play();
+        smplPianoBass[notes[0]].currentTime = 0;
+        smplPianoBass[notes[0]].play();
         for (var i = 0; i < notes.length; i++) {
-            // playSegment(nss[notes[i]], startTime, endTime);
-            nss[notes[i]].currentTime = 0;
-            nss[notes[i]].play();
+            // playSegment(smplPiano[notes[i]], startTime, endTime);
+            smplPiano[notes[i]].currentTime = 0;
+            smplPiano[notes[i]].play();
         }
     } else {
         console.log("No notes were given");
@@ -104,8 +112,8 @@ function playNotes (notes) {
 function playCadenceNotes (notes, startTime, endTime) {
     if (notes) {
         for (var i = 0; i < notes.length; i++) {
-            css[notes[i]].currentTime = 0;
-            css[notes[i]].play();
+            smplPianoCadence[notes[i]].currentTime = 0;
+            smplPianoCadence[notes[i]].play();
         }
     } else {
         console.log("No notes were given");
@@ -117,13 +125,13 @@ function stopNotes (notes) {
 		notes = [notes];
 	}
 	for (var i = 0; i < notes.length; i++) {
-		nss[notes[i]].pause();
+		smplPiano[notes[i]].pause();
 	}
 }
 
 function stopAllPlaying(samples) {
  	for (var i = 0; i < samples.length; i++) {
- 		bss[i].pause();
+ 		smplPianoBass[i].pause();
  		samples[i].pause();
  	}
 } 
@@ -147,6 +155,7 @@ var endTime = 10;
 var states = [stePlay, steShow];
 var actState = 0;
 var actNotes = [];
+var actInstrument = "Piano";
 var actScale = getNotes(nns.C, scales.major);
 var random;
 
@@ -192,8 +201,8 @@ function changeScale (event) {
 	init();
 }
 
-function playChord (base) {
-		stopAllPlaying(nss);
+function playChord (base) { //ttt
+		stopAllPlaying(smplPiano);
 		clearTimeout(tmtCadence);
 		clearTimeout(tmtPause);
 
@@ -204,9 +213,9 @@ function playChord (base) {
 	    playNotes(notes);	
 }
 
-function playCadence () {
+function playCadence () {//ttt
 
-	stopAllPlaying(nss);
+	stopAllPlaying(smplPiano);
 	clearTimeout(tmtPause);
 	clearTimeout(tmtCadence);
 
@@ -228,8 +237,8 @@ function playCadence () {
 	},500)
 ;}
 
-function repeat () {
-	stopAllPlaying(nss);
+function repeat () {//ttt
+	stopAllPlaying(smplPiano);
 	clearTimeout(tmtCadence);
 	clearTimeout(tmtPause);
     
@@ -238,15 +247,15 @@ function repeat () {
     playNotes(actNotes, startTime, endTime);
 
 	tmtPause = setTimeout(function () {
-		for (var i = 0; i < nss.length; i++) {
-			nss[i].pause();
+		for (var i = 0; i < smplPiano.length; i++) {
+			smplPiano[i].pause();
 		}
 	},2000);
 }
 
-function stePlay () {
+function stePlay () {//ttt
 	console.log("NEW ROUND:");
-	stopAllPlaying(nss);
+	stopAllPlaying(smplPiano);
 	clearTimeout(tmtCadence);
 	clearTimeout(tmtPause);
     lblChordName.innerHTML = "?";
@@ -267,7 +276,7 @@ function stePlay () {
 }
 
 function steShow () {
-    lblChordName.innerHTML = degrees[random];
+    lblChordName.innerHTML = dns[random];
 	actState = (actState +1) % states.length;
 }
 
