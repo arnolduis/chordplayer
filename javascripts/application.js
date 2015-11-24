@@ -58,9 +58,7 @@ function getTriadByScale (base, scale) {
     return notes;
 }
 
-function getType () {
-	// body...
-}
+
 
 // ===================== Sampler ==================================
 var smpl = {
@@ -149,13 +147,6 @@ function playCadenceNotes (notes, instrument) {
 // }
 
 function stopAllPlaying() {
- 	// for (var i in smpl) {
- 	// 	for (var j in smpl[i]) {
- 	// 		for (var k = 0; k < smpl[i][j].length; k++) {
- 	// 			smpl[i][j][k].pause();
- 	// 		}
- 	// 	}
- 	// }
  	callOnAllSamples("pause");
 } 
 
@@ -171,7 +162,7 @@ function getNames (notes) {
 
 // ========== Main functions ============
 var toutCadence;
-var states = [stePlay, steShow];
+var states = [stepPlay, stepShow];
 var actState = 0;
 var actNotes = [];
 var actVolume = 0.3;
@@ -199,6 +190,7 @@ for (i in smpl) {
 
 btnNext.focus();
 init();
+rngeVolume.value = actVolume * 100;
 
 
 
@@ -224,8 +216,6 @@ function init (options) {
 		ctrChord.appendChild(btnChord);
 	}
 
-	rngeVolume.value = actVolume * 100;
-
 	setOnAllSamples("volume", actVolume);
 
 
@@ -241,7 +231,6 @@ function playChord (base) {
 		stopAllPlaying();
 		clearTimeout(toutCadence);
 
-		// Guitars only have whole chord samples, no need to get individual notes
 		var notes = getTriadByScale(actScale[base], actScale);
 	    
 	    console.log("Chord Played: ", getNames(actNotes));
@@ -274,6 +263,7 @@ function playCadence () {
     	}
     }
 	toutCadence = setTimeout(function () {
+		stopAllPlaying();
 		for (var i = 0; i < selectedInstruments.length; i++) {
 	    	if (selectedInstruments[i] === "guitar") {
 	    		playCadenceNotes([subs[0]],  selectedInstruments[i]);	
@@ -282,6 +272,7 @@ function playCadence () {
 	    	}
 	    }
 		toutCadence = setTimeout(function () {
+			stopAllPlaying();
 			for (var i = 0; i < selectedInstruments.length; i++) {
 		    	if (selectedInstruments[i] === "guitar") {
 		    		playCadenceNotes([doms[0]],  selectedInstruments[i]);	
@@ -290,6 +281,7 @@ function playCadence () {
 		    	}
 		    }
 			toutCadence = setTimeout(function () {
+				stopAllPlaying();
 				for (var i = 0; i < selectedInstruments.length; i++) {
 			    	if (selectedInstruments[i] === "guitar") {
 			    		playCadenceNotes([tons[0]],  selectedInstruments[i]);	
@@ -298,10 +290,11 @@ function playCadence () {
 			    	}
 			    }
 				toutCadence = setTimeout(function () {
-				},500);
-			},500);
-		},500);
-	},500)
+					stopAllPlaying();
+				},510);
+			},510);
+		},510);
+	},510)
 ;}
 
 function repeat () {
@@ -320,7 +313,7 @@ function repeat () {
 
 }
 
-function stePlay () {
+function stepPlay () {
 	console.log("NEW ROUND:");
 	stopAllPlaying();
 	clearTimeout(toutCadence);
@@ -354,7 +347,7 @@ function stePlay () {
 	actState = (actState +1) % states.length;
 }
 
-function steShow () {
+function stepShow () {
     lblChordName.innerHTML = dns[random];
 	actState = (actState +1) % states.length;
 }
