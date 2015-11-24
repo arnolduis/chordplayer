@@ -1,11 +1,12 @@
 // =============  Harmonic logic ==================
 var chords = {
 	minor: [3, 7],
-	major: [4, 7]
+	major: [4, 7],
+	diminished: [3, 6]
 };
 
-var scales = {
-	major: [2, 4, 5, 7, 9, 11]
+var scales= {
+	major: { noteDistances: [2, 4, 5, 7, 9, 11], chordTypes: ["major", "minor", "minor", "major", "major", "minor", "diminished"] },
 };
 
 var nns = {
@@ -175,7 +176,7 @@ var actState = 0;
 var actNotes = [];
 var actVolume = 0.3;
 var selectedInstruments = ["piano"];
-var actScale = getNotes(nns.C, scales.major);
+var actScale = getNotes(nns.C, scales.major.noteDistances);
 var random;
 
 var allowedDegrees = [0, 1, 3, 4, 5, 6, 7];
@@ -385,7 +386,7 @@ function callOnAllSamples (myFunc, arg1, arg2, arg3, arg4) {
 }
 
 function changeScale (event) {
-	actScale = getNotes(nns[event.value], scales.major);
+	actScale = getNotes(nns[event.value], scales.major.noteDistances);
 	init();
 }
 
