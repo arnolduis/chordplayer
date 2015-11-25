@@ -2,7 +2,8 @@
 var chords = {
 	minor: [3, 7],
 	major: [4, 7],
-	diminished: [3, 6]
+	diminished: [3, 6],
+	dominant: [4, 7, 10]
 };
 
 var scales= {
@@ -35,9 +36,9 @@ var dns = {
 };
 
 function getNotes(base, type) {
-	var notes = [base];
+	var notes = [mod(base, 12)];
 	for (var i = 0; i < type.length; i++) {
-		notes.push((base + type[i])%12);
+		notes.push( mod((base + type[i]), 12));
 	}
 	return notes;
 }
@@ -137,15 +138,6 @@ function playCadenceNotes (notes, instrument) {
     }
 }
 
-// function stopNotes (notes) {
-// 	if (notes.constructor !== Array) {
-// 		notes = [notes];
-// 	}
-// 	for (var i = 0; i < notes.length; i++) {
-// 		smpl.piano[notes[i]].pause();
-// 	}
-// }
-
 function stopAllPlaying() {
  	callOnAllSamples("pause");
 } 
@@ -159,8 +151,10 @@ function getNames (notes) {
 }
 
 
+// ========================================================================================================================================
+// ============================================= Main functions ===========================================================================
+// ========================================================================================================================================
 
-// ========== Main functions ============
 var toutCadence;
 var states = [stepPlay, stepShow];
 var actState = 0;
@@ -168,11 +162,19 @@ var actNotes = [];
 var actChords = [];
 var actVolume = 0.3;
 var selectedInstruments = ["piano"];
-var actScale = getNotes(nns.C, scales.major.noteDistances);
-var random;
-
-// var allowedDegrees = [0, 1, 3, 4, 5, 6, 7];
-// var allowedDegrees = [0, 3, 4];
+var actScaleBase = "C";
+var actScaleType = "major";
+var actScale = getNotes(nns[actScaleBase], scales[actScaleType].noteDistances);
+var plusChords = [
+		{ 
+			notes: getNotes(nns[actScaleBase] - 1, chords.major), 
+			type: "major"
+		},
+		{
+			notes: getNotes(nns[actScaleBase] + 4, chords.dominant),
+			type: "dominant"
+		}
+	];
 
 var btnNext = document.getElementById("btnNext");
 var btnRepeat = document.getElementById("btnRepeat");
@@ -192,33 +194,47 @@ for (i in smpl) {
 btnNext.focus();
 init();
 rngeVolume.value = actVolume * 100;
+setOnAllSamples("volume", actVolume);
 
 
 
 
+var random;
 // ==
 function init (options) {
 	var i;
+
+	actChords = [];
+	for (i = 0; i < actScale.length; i++) {
+		actChords.push({
+			notes: getNotes(actScale[i], chords[scales[actScaleType].chordTypes[i]]),
+			type: scales[actScaleType].chordTypes[i]
+		});
+	}
+	for (i = 0; i < plusChords.length; i++) {
+		actChords.push(plusChords[i]);
+	}
+
+	actChords.sort(sortChords);
 
 	while (ctrChord.firstChild) {
 	    ctrChord.removeChild(ctrChord.firstChild);
 	}
 
 	function evlrPlayChord (event) {
-		playChord(event.srcElement.dataset.degree);
+		console.log(JSON.stringify(event.srcElement.dataset.i));
+		// playChord(actChords[parseInt(event.srcElement.dataset.chord)]);
 	}
 
-	for (i = 0; i < actScale.length; i++) {
+	for (i = 0; i < actChords.length; i++) {
 		var btnChord = document.createElement("div");
-		btnChord.dataset.degree = i;
+		btnChord.dataset.chord = actChords[i].type;
+		btnChord.dataset.i = i;
 		btnChord.className = "btn chord";
-		btnChord.innerHTML = nns[actScale[i]] + " " + dns[i];
+		btnChord.innerHTML = nns[actChords[i].notes[0]] + actChords[i].type + " " + dns[i] ;
 		btnChord.addEventListener("click", evlrPlayChord);
 		ctrChord.appendChild(btnChord);
 	}
-
-	setOnAllSamples("volume", actVolume);
-
 
 
 	sctInstruments.options[0].selected = "selected";
@@ -228,13 +244,11 @@ function init (options) {
  * Plays a chord based on a diatonic scale degree
  * @param  {number} base diatonic degree
  */
-function playChord (base) { 
+function playChord (notes) { 
 		stopAllPlaying();
 		clearTimeout(toutCadence);
-
-		var notes = getTriadByScale(actScale[base], actScale);
 	    
-	    console.log("Chord Played: ", getNames(actNotes));
+	    console.log("Chord Played: ", getNames(notes));
 	    console.log("");
 	    for (var i = 0; i < selectedInstruments.length; i++) {
 	    	if (selectedInstruments[i] === "guitar") {
@@ -358,6 +372,20 @@ function next () {
 }
 
 // Nyeh.....................ttt
+
+
+function sortChords(a, b) {
+    if (a.notes[0] === b.notes[0]) {
+        return 0;
+    }
+    else {
+        return (a[0] < b[0]) ? -1 : 1;
+    }
+}
+
+function mod (x, m) {
+	return (x + m) % m;
+}
 
 function setOnAllSamples (myVariable, arg1) {
 	 for (var i in smpl) {
