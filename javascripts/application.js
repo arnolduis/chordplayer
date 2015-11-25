@@ -165,12 +165,13 @@ var toutCadence;
 var states = [stepPlay, stepShow];
 var actState = 0;
 var actNotes = [];
+var actChords = [];
 var actVolume = 0.3;
 var selectedInstruments = ["piano"];
 var actScale = getNotes(nns.C, scales.major.noteDistances);
 var random;
 
-var allowedDegrees = [0, 1, 3, 4, 5, 6, 7];
+// var allowedDegrees = [0, 1, 3, 4, 5, 6, 7];
 // var allowedDegrees = [0, 3, 4];
 
 var btnNext = document.getElementById("btnNext");
