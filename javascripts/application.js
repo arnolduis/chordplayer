@@ -89,19 +89,23 @@ function stopAllPlaying() {
 var chords = {
 	minor: {
 		notes    : [3, 7],
-		jazzNot  : ["min"]
+		jazzNot  : "min",
+		ClassNot : ""
 	},
 	major: {
 		notes    : [4, 7],
-		jazzNot  : [""]
+		jazzNot  : "",
+		ClassNot : ""
 	},
 	diminished: {
-		notes: [3, 6],
-		jazzNot  : ["dim"],
+		notes    : [3, 6],
+		jazzNot  : "dim",
+		ClassNot : "°"
 	},
 	dominant: {
-		notes: [4, 7, 10],
-		jazzNot  : ["7"],
+		notes    : [4, 7, 10],
+		jazzNot  : "7",
+		ClassNot : "7"
 	}
 };
 
@@ -109,7 +113,6 @@ var scales= {
 	major: { 
 		noteDistances : [2, 4, 5, 7, 9, 11],
 		chordTypes    : ["major", "minor", "minor", "major", "major", "minor", "diminished"] },
-		ClassNot      : ["I",     "ii",    "iii",   "IV",    "V",     "vi",    "vii°"]
 };
 
 var nns = {
@@ -128,13 +131,21 @@ var nns = {
 };
 
 var dns = {
-    "I"  : 0 , 0 : "I" ,
-    "II" : 1 , 1 : "II",
-    "III": 2 , 2 : "III" ,
-    "IV" : 3 , 3 : "IV",
-    "V"  : 4 , 4 : "V" ,
-    "VI" : 5 , 5 : "VI" ,
-    "VII": 6 , 6 : "VII",
+    "I"  : 0  , 0  : "I" ,
+    "II" : 2  , 2  : "II",
+    "III": 4  , 4  : "III" ,
+    "IV" : 5  , 5  : "IV",
+    "V"  : 7  , 7  : "V" ,
+    "VI" : 9  , 9  : "VI" ,
+    "VII": 11 , 11 : "VII",
+};
+
+var extdns = {
+    "I#"  : 1  , 1  : "I#" ,
+    "II#" : 3  , 3  : "II#",
+    "IV#" : 6  , 6  : "IV#",
+    "V#"  : 8  , 8  : "V#" ,
+    "VI#" : 10 , 10 : "VI#" ,
 };
 
 // Get chromatic notes based on a @base note, and a scale or chord @type
