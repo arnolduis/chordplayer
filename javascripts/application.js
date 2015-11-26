@@ -1,67 +1,7 @@
-// =============  Harmonic logic ==================
-var chords = {
-	minor: [3, 7],
-	major: [4, 7],
-	diminished: [3, 6],
-	dominant: [4, 7, 10]
-};
+// =================================================================================================================================================================
+// ======================================================================     Sampler    ===========================================================================
+// =================================================================================================================================================================
 
-var scales= {
-	major: { noteDistances: [2, 4, 5, 7, 9, 11], chordTypes: ["major", "minor", "minor", "major", "major", "minor", "diminished"] },
-};
-
-var nns = {
-    "C" : 0 , 0 : "C" ,
-    "C#": 1 , 1 : "C#",
-    "D" : 2 , 2 : "D" ,
-    "D#": 3 , 3 : "D#",
-    "E" : 4 , 4 : "E" ,
-    "F" : 5 , 5 : "F" ,
-    "F#": 6 , 6 : "F#",
-    "G" : 7 , 7 : "G" ,
-    "G#": 8 , 8 : "G#",
-    "A" : 9 , 9 : "A" ,
-    "A#": 10, 10: "A#",
-    "B" : 11, 11: "B"
-};
-
-var dns = {
-    "I"  : 0 , 0 : "I" ,
-    "II" : 1 , 1 : "II",
-    "III": 2 , 2 : "III" ,
-    "IV" : 3 , 3 : "IV",
-    "V"  : 4 , 4 : "V" ,
-    "VI" : 5 , 5 : "VI" ,
-    "VII": 6 , 6 : "VII",
-};
-
-function getNotes(base, type) {
-	var notes = [mod(base, 12)];
-	for (var i = 0; i < type.length; i++) {
-		notes.push( mod((base + type[i]), 12));
-	}
-	return notes;
-}
-
-function getTriadByScale (base, scale) {
-    var notes = [base];
-    console.log("base", base);
-    console.log("scale", scale);
-    if (scale.indexOf(base) < 0) {
-        console.log("Base not in scale");
-        return;
-    } else {
-        for (var i = 1; i <= 2; i++) {
-            notes.push(scale[(scale.indexOf(base) + i*2) % scale.length]);
-        }
-    }
-    console.log("notes", notes);
-    return notes;
-}
-
-
-
-// ===================== Sampler ==================================
 var smpl = {
 	piano: {},
 	guitar: {},
@@ -142,6 +82,87 @@ function stopAllPlaying() {
  	callOnAllSamples("pause");
 } 
 
+// =================================================================================================================================================================
+// ======================================================================  Music Logic  ===========================================================================
+// =================================================================================================================================================================
+
+var chords = {
+	minor: {
+		notes    : [3, 7],
+		jazzNot  : ["min"]
+	},
+	major: {
+		notes    : [4, 7],
+		jazzNot  : [""]
+	},
+	diminished: {
+		notes: [3, 6],
+		jazzNot  : ["dim"],
+	},
+	dominant: {
+		notes: [4, 7, 10],
+		jazzNot  : ["7"],
+	}
+};
+
+var scales= {
+	major: { 
+		noteDistances : [2, 4, 5, 7, 9, 11],
+		chordTypes    : ["major", "minor", "minor", "major", "major", "minor", "diminished"] },
+		ClassNot      : ["I",     "ii",    "iii",   "IV",    "V",     "vi",    "vii°"]
+};
+
+var nns = {
+    "C" : 0 , 0 : "C" ,
+    "C#": 1 , 1 : "C#",
+    "D" : 2 , 2 : "D" ,
+    "D#": 3 , 3 : "D#",
+    "E" : 4 , 4 : "E" ,
+    "F" : 5 , 5 : "F" ,
+    "F#": 6 , 6 : "F#",
+    "G" : 7 , 7 : "G" ,
+    "G#": 8 , 8 : "G#",
+    "A" : 9 , 9 : "A" ,
+    "A#": 10, 10: "A#",
+    "B" : 11, 11: "B"
+};
+
+var dns = {
+    "I"  : 0 , 0 : "I" ,
+    "II" : 1 , 1 : "II",
+    "III": 2 , 2 : "III" ,
+    "IV" : 3 , 3 : "IV",
+    "V"  : 4 , 4 : "V" ,
+    "VI" : 5 , 5 : "VI" ,
+    "VII": 6 , 6 : "VII",
+};
+
+// Get chromatic notes based on a @base note, and a scale or chord @type
+function getNotes(base, type) {
+	var notes = [mod(base, 12)];
+	for (var i = 0; i < type.length; i++) {
+		notes.push( mod((base + type[i]), 12));
+	}
+	return notes;
+}
+// If given a @scale, count down 2 triads from @base 
+function getTriadByScale (base, scale) {
+    var notes = [base];
+    console.log("base", base);
+    console.log("scale", scale);
+    if (scale.indexOf(base) < 0) {
+        console.log("Base not in scale");
+        return;
+    } else {
+        for (var i = 1; i <= 2; i++) {
+            notes.push(scale[(scale.indexOf(base) + i*2) % scale.length]);
+        }
+    }
+    console.log("notes", notes);
+    return notes;
+}
+
+// Get names based on chromatic @notes 
 function getNames (notes) {
 	var noteNames = [];
 	for (var i = 0; i < notes.length; i++) {
@@ -151,17 +172,20 @@ function getNames (notes) {
 }
 
 
-// ========================================================================================================================================
-// ============================================= Main functions ===========================================================================
-// ========================================================================================================================================
+
+
+
+// =================================================================================================================================================================
+// ====================================================================== Main functions ===========================================================================
+// =================================================================================================================================================================
 
 var toutCadence;
 var states = [stepPlay, stepShow];
 var actState = 0;
-var actNotes = [];
-var actChords = [];
+var actChords = []; // Chords chosen
+var actChord = 0; // actChords id
 var actVolume = 0.3;
-var selectedInstruments = ["piano"];
+var selectedInstruments = ["guitar", "strings"];
 var actScaleBase = "C";
 var actScaleType = "major";
 var actScale = getNotes(nns[actScaleBase], scales[actScaleType].noteDistances);
@@ -204,6 +228,7 @@ var random;
 function init (options) {
 	var i;
 
+	// Fill up actChords, based on Scale, and ush in plusChords and sort
 	actChords = [];
 	for (i = 0; i < actScale.length; i++) {
 		actChords.push({
@@ -214,18 +239,15 @@ function init (options) {
 	for (i = 0; i < plusChords.length; i++) {
 		actChords.push(plusChords[i]);
 	}
-
 	actChords.sort(sortChords);
-
+	// Rrefres Buttons
 	while (ctrChord.firstChild) {
 	    ctrChord.removeChild(ctrChord.firstChild);
 	}
-
 	function evlrPlayChord (event) {
 		console.log(JSON.stringify(event.srcElement.dataset.i));
 		// playChord(actChords[parseInt(event.srcElement.dataset.chord)]);
 	}
-
 	for (i = 0; i < actChords.length; i++) {
 		var btnChord = document.createElement("div");
 		btnChord.dataset.chord = actChords[i].type;
@@ -235,8 +257,7 @@ function init (options) {
 		btnChord.addEventListener("click", evlrPlayChord);
 		ctrChord.appendChild(btnChord);
 	}
-
-
+	// Preselect <select> elements
 	sctInstruments.options[0].selected = "selected";
 }
 
@@ -305,7 +326,7 @@ function playCadence () {
 			    	}
 			    }
 				toutCadence = setTimeout(function () {
-					stopAllPlaying();
+					stopAllPlaying()
 				},510);
 			},510);
 		},510);
