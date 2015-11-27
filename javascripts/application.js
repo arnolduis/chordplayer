@@ -374,36 +374,31 @@ function stepPlay () {
 	clearTimeout(toutCadence);
     lblChordName.innerHTML = "?";
 
-    if (allowedDegrees.length === 1) {
-    	random = allowedDegrees[0];
-    } else {
-	    var newRandom = Math.floor(Math.random()* 7 );
-	    while( (random === newRandom) || (allowedDegrees.indexOf(newRandom) < 0)  ){
-	    	newRandom = Math.floor(Math.random()* 7 );
+    // if (allowedDegrees.length === 1) {
+    	// random = allowedDegrees[0];
+    // } else {
+	    var newRandom = Math.floor(Math.random() * actChords.length );
+	    // while( (random === newRandom) || (allowedDegrees.indexOf(newRandom) < 0)  ){
+	    while( (random === newRandom)  ){
+	    	newRandom = Math.floor(Math.random() * actChords.length );
 	    }
-	    random = newRandom;
-    }
+	    actChord = newRandom;
+    // }
     
 
     // Guitar samples only have whole powerchords, so no need to get note series
-   	actNotes = getTriadByScale(actScale[random],actScale);
+   	actNotes = actChords[actChord].notes;
     
     console.log("Chord Played: ", getNames(actNotes));
     console.log("");
 
-    for (var i = 0; i < selectedInstruments.length; i++) {
-    	if (selectedInstruments[i] === "guitar") {
-    		playNotes([actNotes[0]],  selectedInstruments[i]);	
-    	} else {
-		    playNotes(actNotes, selectedInstruments[i]);	
-    	}
-    }
+    mainPlayNotes(actNotes);
 
 	actState = (actState +1) % states.length;
 }
 
 function stepShow () {
-    lblChordName.innerHTML = dns[random];
+    lblChordName.innerHTML = dns[actChords[actChord].base];
 	actState = (actState +1) % states.length;
 }
 
