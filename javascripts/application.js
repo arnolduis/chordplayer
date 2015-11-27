@@ -90,22 +90,22 @@ var chords = {
 	minor: {
 		notes    : [3, 7],
 		jazzNot  : "min",
-		ClassNot : ""
+		classNot : ""
 	},
 	major: {
 		notes    : [4, 7],
 		jazzNot  : "",
-		ClassNot : ""
+		classNot : ""
 	},
 	diminished: {
 		notes    : [3, 6],
 		jazzNot  : "dim",
-		ClassNot : "°"
+		classNot : "°"
 	},
 	dominant: {
 		notes    : [4, 7, 10],
 		jazzNot  : "7",
-		ClassNot : "7"
+		classNot : "7"
 	}
 };
 
@@ -195,21 +195,11 @@ var states = [stepPlay, stepShow];
 var actState = 0;
 var actChords = []; // Chords chosen
 var actChord = 0; // actChords id
-var actVolume = 0.3;
+var actVolume = 1;
 var selectedInstruments = ["guitar", "strings"];
 var actScaleBase = "C";
 var actScaleType = "major";
 var actScale = getNotes(nns[actScaleBase], scales[actScaleType].noteDistances);
-var plusChords = [
-		{ 
-			notes: getNotes(nns[actScaleBase] - 1, chords.major), 
-			type: "major"
-		},
-		{
-			notes: getNotes(nns[actScaleBase] + 4, chords.dominant),
-			type: "dominant"
-		}
-	];
 
 var btnNext = document.getElementById("btnNext");
 var btnRepeat = document.getElementById("btnRepeat");
@@ -239,38 +229,87 @@ var random;
 function init (options) {
 	var i;
 
+	// Define plus chords that will be added to the basic set
+	// We will move it into the choosing matrix sometime
+	var plusChords = [
+		{
+			base:  mod(nns[actScaleBase] - 1, 12),
+			notes: getNotes(mod(nns[actScaleBase] - 1, 12), chords.major.notes), 
+			type: "major"
+		},
+		{
+			base: mod(nns[actScaleBase] + 4, 12),
+			notes: getNotes(mod(nns[actScaleBase] + 4, 12), chords.dominant.notes),
+			type: "dominant"
+		}
+	];
+
 	// Fill up actChords, based on Scale, and ush in plusChords and sort
 	actChords = [];
 	for (i = 0; i < actScale.length; i++) {
 		actChords.push({
-			notes: getNotes(actScale[i], chords[scales[actScaleType].chordTypes[i]]),
-			type: scales[actScaleType].chordTypes[i]
+			notes: getNotes(actScale[i], chords[scales[actScaleType].chordTypes[i]].notes),
+			base: actScale[i],
+			type: scales[actScaleType].chordTypes[i],
 		});
 	}
 	for (i = 0; i < plusChords.length; i++) {
 		actChords.push(plusChords[i]);
 	}
-	actChords.sort(sortChords);
-	// Rrefres Buttons
-	while (ctrChord.firstChild) {
+	actChords.sort(actChords);
+	// Build buttons
+	 while (ctrChord.firstChild) {
 	    ctrChord.removeChild(ctrChord.firstChild);
 	}
+
 	function evlrPlayChord (event) {
-		console.log(JSON.stringify(event.srcElement.dataset.i));
+		console.log(actChords[parseInt(event.srcElement.dataset.i)]);
 		// playChord(actChords[parseInt(event.srcElement.dataset.chord)]);
 	}
 	for (i = 0; i < actChords.length; i++) {
 		var btnChord = document.createElement("div");
-		btnChord.dataset.chord = actChords[i].type;
 		btnChord.dataset.i = i;
 		btnChord.className = "btn chord";
-		btnChord.innerHTML = nns[actChords[i].notes[0]] + actChords[i].type + " " + dns[i] ;
+		var lbelBase = nns[actChords[i].base];
+		var lbelJazz = chords[actChords[i].type].jazzNot;
+		var out = getLbelDegree(actChords[i]);
+		btnChord.className += out.class;
+		var lbelDegree = out.label;
+		var lbelClass = chords[actChords[i].type].classNot;
+		btnChord.innerHTML = lbelBase + lbelJazz + "  " + lbelDegree + lbelClass ;
 		btnChord.addEventListener("click", evlrPlayChord);
 		ctrChord.appendChild(btnChord);
 	}
 	// Preselect <select> elements
 	sctInstruments.options[0].selected = "selected";
 }
+
+function getLbelDegree (x) {
+	var out = {};
+
+	// Normalize
+	var base = mod(x.base - actScale[0], 12);
+
+	// Count stuff
+	if (dns[base]) {
+		out.label = dns[base];
+		var degree = actScale.indexOf(base);
+		out.class = "";
+		if (scales[actScaleType].chordTypes[degree] !== x.type) {
+			out.class = " external";
+		}
+	} else if (extdns[base]){
+		out.label = extdns[base];
+		out.class = " external";
+	} else {
+		return console.log("Something wrong in the getLbelDegree function");
+	}
+	if ("minor" === x.type || "diminished" === x.type) {
+		out.label = out.label.toLowerCase();
+	}
+	return out;
+}
+
 
 /**
  * Plays a chord based on a diatonic scale degree
@@ -440,7 +479,8 @@ function callOnAllSamples (myFunc, arg1, arg2, arg3, arg4) {
 }
 
 function changeScale (event) {
-	actScale = getNotes(nns[event.value], scales.major.noteDistances);
+	actScaleBase = event.value;
+	actScale = getNotes(nns[actScaleBase], scales.major.noteDistances);
 	init();
 }
 
