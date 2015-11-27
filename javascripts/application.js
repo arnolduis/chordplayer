@@ -265,13 +265,7 @@ function init (options) {
 	function evlrPlayChord (event) {
 		var notes = actChords[parseInt(event.srcElement.dataset.i)].notes;
 		stopAllPlaying();
-	    for (var i = 0; i < selectedInstruments.length; i++) {
-	    	if (selectedInstruments[i] === "guitar") {
-	    		playNotes([notes[0]],  selectedInstruments[i]);	
-	    	} else {
-			    playNotes(notes, selectedInstruments[i]);	
-	    	}
-	    }
+		mainPlayNotes(notes);
 
 	}
 	for (i = 0; i < actChords.length; i++) {
@@ -331,13 +325,7 @@ function playChord (notes) {
 	    
 	    console.log("Chord Played: ", getNames(notes));
 	    console.log("");
-	    for (var i = 0; i < selectedInstruments.length; i++) {
-	    	if (selectedInstruments[i] === "guitar") {
-	    		playNotes([notes[0]],  selectedInstruments[i]);	
-	    	} else {
-			    playNotes(notes, selectedInstruments[i]);	
-	    	}
-	    }
+		mainPlayNotes(notes);
 }
 
 function playCadence () {
@@ -351,42 +339,18 @@ function playCadence () {
 	var subs = getTriadByScale(actScale[3], actScale);
 	var doms = getTriadByScale(actScale[4], actScale);
 
-	for (var i = 0; i < selectedInstruments.length; i++) {
-    	if (selectedInstruments[i] === "guitar") {
-    		playCadenceNotes([tons[0]],  selectedInstruments[i]);	
-    	} else {
-		    playCadenceNotes(tons, selectedInstruments[i]);	
-    	}
-    }
+	mainPlayNotes(tons);
 	toutCadence = setTimeout(function () {
 		stopAllPlaying();
-		for (var i = 0; i < selectedInstruments.length; i++) {
-	    	if (selectedInstruments[i] === "guitar") {
-	    		playCadenceNotes([subs[0]],  selectedInstruments[i]);	
-	    	} else {
-			    playCadenceNotes(subs, selectedInstruments[i]);	
-	    	}
-	    }
+		mainPlayNotes(subs);
 		toutCadence = setTimeout(function () {
 			stopAllPlaying();
-			for (var i = 0; i < selectedInstruments.length; i++) {
-		    	if (selectedInstruments[i] === "guitar") {
-		    		playCadenceNotes([doms[0]],  selectedInstruments[i]);	
-		    	} else {
-				    playCadenceNotes(doms, selectedInstruments[i]);	
-		    	}
-		    }
+			mainPlayNotes(doms);
 			toutCadence = setTimeout(function () {
 				stopAllPlaying();
-				for (var i = 0; i < selectedInstruments.length; i++) {
-			    	if (selectedInstruments[i] === "guitar") {
-			    		playCadenceNotes([tons[0]],  selectedInstruments[i]);	
-			    	} else {
-					    playCadenceNotes(tons, selectedInstruments[i]);	
-			    	}
-			    }
+				mainPlayNotes(tons);
 				toutCadence = setTimeout(function () {
-					stopAllPlaying()
+					stopAllPlaying();
 				},510);
 			},510);
 		},510);
@@ -399,13 +363,8 @@ function repeat () {
     
     console.log("Chord Played: ", getNames(actNotes));
     console.log("");
-	for (var i = 0; i < selectedInstruments.length; i++) {
-    	if (selectedInstruments[i] === "guitar") {
-    		playNotes([actNotes[0]],  selectedInstruments[i]);	
-    	} else {
-		    playNotes(actNotes, selectedInstruments[i]);	
-    	}
-    }
+    var notes = actChords[actChord].notes;
+	mainPlayNotes(notes);
 
 }
 
@@ -453,6 +412,16 @@ function next () {
 }
 
 // Nyeh.....................ttt
+
+function mainPlayNotes (notes) {
+	for (var i = 0; i < selectedInstruments.length; i++) {
+    	if (selectedInstruments[i] === "guitar") {
+    		playNotes([notes[0]],  selectedInstruments[i]);	
+    	} else {
+		    playNotes(notes, selectedInstruments[i]);	
+    	}
+    }
+}
 
 
 function sortChords(a, b) {
