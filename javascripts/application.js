@@ -263,8 +263,16 @@ function init (options) {
 	}
 
 	function evlrPlayChord (event) {
-		console.log(actChords[parseInt(event.srcElement.dataset.i)]);
-		// playChord(actChords[parseInt(event.srcElement.dataset.chord)]);
+		var notes = actChords[parseInt(event.srcElement.dataset.i)].notes;
+		stopAllPlaying();
+	    for (var i = 0; i < selectedInstruments.length; i++) {
+	    	if (selectedInstruments[i] === "guitar") {
+	    		playNotes([notes[0]],  selectedInstruments[i]);	
+	    	} else {
+			    playNotes(notes, selectedInstruments[i]);	
+	    	}
+	    }
+
 	}
 	for (i = 0; i < actChords.length; i++) {
 		var btnChord = document.createElement("div");
@@ -276,7 +284,7 @@ function init (options) {
 		btnChord.className += out.class;
 		var lbelDegree = out.label;
 		var lbelClass = chords[actChords[i].type].classNot;
-		btnChord.innerHTML = lbelBase + lbelJazz + "  " + lbelDegree + lbelClass ;
+		btnChord.innerHTML = lbelBase + lbelJazz + "&#13;&#10;" + lbelDegree + lbelClass ;
 		btnChord.addEventListener("click", evlrPlayChord);
 		ctrChord.appendChild(btnChord);
 	}
@@ -287,24 +295,26 @@ function init (options) {
 function getLbelDegree (x) {
 	var out = {};
 
+
 	// Normalize
-	var base = mod(x.base - actScale[0], 12);
+	var base = x.base; 
+	var baseNorm = mod(x.base - actScale[0], 12);
+	var degree = actScale.indexOf(base);
 
 	// Count stuff
-	if (dns[base]) {
-		out.label = dns[base];
-		var degree = actScale.indexOf(base);
+	if (dns[baseNorm]) {
+		out.label = dns[baseNorm];
 		out.class = "";
 		if (scales[actScaleType].chordTypes[degree] !== x.type) {
 			out.class = " external";
 		}
-	} else if (extdns[base]){
-		out.label = extdns[base];
+	} else if (extdns[baseNorm]){
+		out.label = extdns[baseNorm];
 		out.class = " external";
 	} else {
 		return console.log("Something wrong in the getLbelDegree function");
 	}
-	if ("minor" === x.type || "diminished" === x.type) {
+	if ("minor" ===	 x.type || "diminished" === x.type) {
 		out.label = out.label.toLowerCase();
 	}
 	return out;
@@ -446,11 +456,11 @@ function next () {
 
 
 function sortChords(a, b) {
-    if (a.notes[0] === b.notes[0]) {
+    if (a.base === b.base) {
         return 0;
     }
     else {
-        return (a[0] < b[0]) ? -1 : 1;
+        return (a.base < b.base) ? -1 : 1;
     }
 }
 
