@@ -106,6 +106,16 @@ var chords = {
 		notes    : [4, 7, 10],
 		jazzNot  : "7",
 		classNot : "7"
+	},
+	sus2: {
+		notes    : [2, 7],
+		jazzNot  : "sus2",
+		classNot : "sus2"
+	},
+	sus4: {
+		notes    : [5, 7],
+		jazzNot  : "sus4",
+		classNot : "sus4"
 	}
 };
 
@@ -247,6 +257,16 @@ function init (options) {
 			base: mod(nns[actScaleBase] + 7, 12),
 			notes: getNotes(mod(nns[actScaleBase] + 7, 12), chords.dominant.notes),
 			type: "dominant"
+		},
+		{
+			base: mod(nns[actScaleBase], 12),
+			notes: getNotes(mod(nns[actScaleBase], 12), chords.sus2.notes),
+			type: "sus2"
+		},
+		{
+			base: mod(nns[actScaleBase], 12),
+			notes: getNotes(mod(nns[actScaleBase], 12), chords.sus4.notes),
+			type: "sus4"
 		}
 	];
 
@@ -383,7 +403,7 @@ function stepPlay () {
 	console.log("NEW ROUND:");
 	stopAllPlaying();
 	clearTimeout(toutCadence);
-    lblChordName.innerHTML = "?	";
+    lblChordName.innerHTML = "	?	";
 
     // if (allowedDegrees.length === 1) {
     	// random = allowedDegrees[0];
