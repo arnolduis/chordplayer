@@ -89,7 +89,7 @@ function stopAllPlaying() {
 var chords = {
 	minor: {
 		notes    : [3, 7],
-		jazzNot  : "min",
+		jazzNot  : "m",
 		classNot : ""
 	},
 	major: {
@@ -157,21 +157,21 @@ function getNotes(base, type) {
 	return notes;
 }
 // If given a @scale, count down 2 triads from @base 
-function getTriadByScale (base, scale) {
-    var notes = [base];
-    console.log("base", base);
-    console.log("scale", scale);
-    if (scale.indexOf(base) < 0) {
-        console.log("Base not in scale");
-        return;
-    } else {
-        for (var i = 1; i <= 2; i++) {
-            notes.push(scale[(scale.indexOf(base) + i*2) % scale.length]);
-        }
-    }
-    console.log("notes", notes);
-    return notes;
-}
+// function getTriadByScale (base, scale) {
+//     var notes = [base];
+//     console.log("base", base);
+//     console.log("scale", scale);
+//     if (scale.indexOf(base) < 0) {
+//         console.log("Base not in scale");
+//         return;
+//     } else {
+//         for (var i = 1; i <= 2; i++) {
+//             notes.push(scale[(scale.indexOf(base) + i*2) % scale.length]);
+//         }
+//     }
+//     console.log("notes", notes);
+//     return notes;
+// }
 
 // Get names based on chromatic @notes 
 function getNames (notes) {
@@ -204,9 +204,10 @@ var actScale = getNotes(nns[actScaleBase], scales[actScaleType].noteDistances);
 var btnNext = document.getElementById("btnNext");
 var btnRepeat = document.getElementById("btnRepeat");
 var btnCadence = document.getElementById("btnCadence");
+
 var lblChordName = document.getElementById("chordName");
 var sctInstruments = document.getElementById("sctInstruments");
-var ctrChord = document.getElementById("chord-container");
+var cntrChord = document.getElementById("chord-container");
 var rngeVolume = document.getElementById("rngeVolume");
 
 for (i in smpl) {
@@ -241,6 +242,11 @@ function init (options) {
 			base: mod(nns[actScaleBase] + 4, 12),
 			notes: getNotes(mod(nns[actScaleBase] + 4, 12), chords.dominant.notes),
 			type: "dominant"
+		},
+		{
+			base: mod(nns[actScaleBase] + 7, 12),
+			notes: getNotes(mod(nns[actScaleBase] + 7, 12), chords.dominant.notes),
+			type: "dominant"
 		}
 	];
 
@@ -258,8 +264,8 @@ function init (options) {
 	}
 	actChords.sort(actChords);
 	// Build buttons
-	 while (ctrChord.firstChild) {
-	    ctrChord.removeChild(ctrChord.firstChild);
+	 while (cntrChord.firstChild) {
+	    cntrChord.removeChild(cntrChord.firstChild);
 	}
 
 	function evlrPlayChord (event) {
@@ -270,45 +276,50 @@ function init (options) {
 	}
 	for (i = 0; i < actChords.length; i++) {
 		var btnChord = document.createElement("div");
+		var label = generateLabel(actChords[i]);
 		btnChord.dataset.i = i;
-		btnChord.className = "btn chord";
-		var lbelBase = nns[actChords[i].base];
-		var lbelJazz = chords[actChords[i].type].jazzNot;
-		var out = getLbelDegree(actChords[i]);
-		btnChord.className += out.class;
-		var lbelDegree = out.label;
-		var lbelClass = chords[actChords[i].type].classNot;
-		btnChord.innerHTML = lbelBase + lbelJazz + "&#13;&#10;" + lbelDegree + lbelClass ;
+		btnChord.className = "btn chord" + label.class;
+		btnChord.innerHTML = label.label;
 		btnChord.addEventListener("click", evlrPlayChord);
-		ctrChord.appendChild(btnChord);
+		cntrChord.appendChild(btnChord);
 	}
 	// Preselect <select> elements
 	sctInstruments.options[0].selected = "selected";
 }
 
-function getLbelDegree (x) {
+function generateLabel (chord) {
+	var out = getDegree(chord);
+	var lbelDegree = out.label;
+	var lbelBase = nns[chord.base];
+	var lbelJazz = chords[chord.type].jazzNot;
+	var lbelClass = chords[chord.type].classNot;
+	return { 
+		class: out.class, 
+		label: lbelDegree + lbelClass + "<br>" + lbelBase + lbelJazz
+	};
+}
+
+// Generates the classical notation degree basd eon a chord object !!!Also sets the external class if neededttt
+function getDegree (chord) {
 	var out = {};
-
-
 	// Normalize
-	var base = x.base; 
-	var baseNorm = mod(x.base - actScale[0], 12);
-	var degree = actScale.indexOf(base);
+	var baseNorm = mod(chord.base - actScale[0], 12);
+	var degree = actScale.indexOf(chord.base);
 
 	// Count stuff
 	if (dns[baseNorm]) {
 		out.label = dns[baseNorm];
 		out.class = "";
-		if (scales[actScaleType].chordTypes[degree] !== x.type) {
+		if (scales[actScaleType].chordTypes[degree] !== chord.type) {
 			out.class = " external";
 		}
 	} else if (extdns[baseNorm]){
 		out.label = extdns[baseNorm];
 		out.class = " external";
 	} else {
-		return console.log("Something wrong in the getLbelDegree function");
+		return console.log("Something wrong in the getDegree function");
 	}
-	if ("minor" ===	 x.type || "diminished" === x.type) {
+	if ("minor" ===	 chord.type || "diminished" === chord.type) {
 		out.label = out.label.toLowerCase();
 	}
 	return out;
@@ -335,9 +346,9 @@ function playCadence () {
 
 
 	// Guitars only have whole chord samples, no need to get individual notes
-	var tons = getTriadByScale(actScale[0], actScale);
-	var subs = getTriadByScale(actScale[3], actScale);
-	var doms = getTriadByScale(actScale[4], actScale);
+	var tons = getNotes(actScale[0], chords[scales[actScaleType].chordTypes[0]].notes);
+	var subs = getNotes(actScale[3], chords[scales[actScaleType].chordTypes[3]].notes);
+	var doms = getNotes(actScale[4], chords[scales[actScaleType].chordTypes[4]].notes);
 
 	mainPlayNotes(tons);
 	toutCadence = setTimeout(function () {
@@ -372,14 +383,14 @@ function stepPlay () {
 	console.log("NEW ROUND:");
 	stopAllPlaying();
 	clearTimeout(toutCadence);
-    lblChordName.innerHTML = "?";
+    lblChordName.innerHTML = "?	";
 
     // if (allowedDegrees.length === 1) {
     	// random = allowedDegrees[0];
     // } else {
 	    var newRandom = Math.floor(Math.random() * actChords.length );
 	    // while( (random === newRandom) || (allowedDegrees.indexOf(newRandom) < 0)  ){
-	    while( (random === newRandom)  ){
+	    while( (actChord === newRandom)  ){
 	    	newRandom = Math.floor(Math.random() * actChords.length );
 	    }
 	    actChord = newRandom;
@@ -398,7 +409,9 @@ function stepPlay () {
 }
 
 function stepShow () {
-    lblChordName.innerHTML = dns[actChords[actChord].base];
+	var label = generateLabel(actChords[actChord]);
+	var labelSplit = label.label.split("<br>");
+    lblChordName.innerHTML = labelSplit[1] + " " + labelSplit[0];
 	actState = (actState +1) % states.length;
 }
 
