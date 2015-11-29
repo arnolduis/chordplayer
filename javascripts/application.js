@@ -87,14 +87,14 @@ function stopAllPlaying() {
 // =================================================================================================================================================================
 
 var chords = {
-	minor: {
-		notes    : [3, 7],
-		jazzNot  : "m",
-		classNot : ""
-	},
 	major: {
 		notes    : [4, 7],
 		jazzNot  : "",
+		classNot : ""
+	},
+	minor: {
+		notes    : [3, 7],
+		jazzNot  : "m",
 		classNot : ""
 	},
 	diminished: {
@@ -116,6 +116,16 @@ var chords = {
 		notes    : [5, 7],
 		jazzNot  : "sus4",
 		classNot : "sus4"
+	},
+	major6: {
+		notes    : [4, 7, 9],
+		jazzNot  : "6",
+		classNot : "6"
+	},
+	minor6: {
+		notes    : [3, 7, 9],
+		jazzNot  : "m6",
+		classNot : "m6"
 	}
 };
 
@@ -210,6 +220,8 @@ var selectedInstruments = ["guitar", "strings"];
 var actScaleBase = "C";
 var actScaleType = "major";
 var actScale = getNotes(nns[actScaleBase], scales[actScaleType].noteDistances);
+var chordType2Colum = {};
+var tableDegrees = ["I","I#","II","II#","III","IV","IV#","V","V#","VI","VI#","VII"];
 
 var btnNext = document.getElementById("btnNext");
 var btnRepeat = document.getElementById("btnRepeat");
@@ -220,24 +232,62 @@ var sctInstruments = document.getElementById("sctInstruments");
 var cntrChord = document.getElementById("chord-container");
 var rngeVolume = document.getElementById("rngeVolume");
 
-for (i in smpl) {
-	var optInstrument = document.createElement("option");
-	optInstrument.value = i;
-	optInstrument.innerHTML = i;
-	sctInstruments.appendChild(optInstrument);
+init();
+
+function init () {
+	var i;
+	// Init instrument select boz
+	for (i in smpl) {
+		var optInstrument = document.createElement("option");
+		optInstrument.value = i;
+		optInstrument.innerHTML = i;
+		sctInstruments.appendChild(optInstrument);
+	}
+	rngeVolume.value = actVolume * 100;
+	setOnAllSamples("volume", actVolume);
+	// Preselect <select> elements
+	sctInstruments.options[0].selected = "selected";
+	initExercise();
+	btnNext.focus();
+	// Prepare chordtable
+	var chordtable = document.getElementById("chordtable");
+	var theader = chordtable.createTHead();
+	var tbody = chordtable.createTBody();
+	var row = theader.insertRow(0);    
+	var cell = row.insertCell(0);
+	var rowLength = 0;
+
+	// Head
+	for (var j in chords) {
+		chordType2Colum[j] = rowLength;
+		cell = row.insertCell(-1);
+		cell.innerHTML = j;
+		rowLength++;
+	}
+	// Body
+	for (i = 0; i < 12; i++) {
+		row = tbody.insertRow(-1);
+		cell = row.insertCell(-1);
+		cell.innerHTML = tableDegrees[i];
+
+		for (j = 0; j < rowLength; j++) {
+			cell = row.insertCell(-1);
+			cell.dataset.type = theader.rows[0].cells[j+1].innerHTML;
+			cell.dataset.base = i;
+			cell.onclick = evlrChordTable;
+			cell.innerHTML = nns[i] + chords[theader.rows[0].cells[j+1].innerHTML].jazzNot; 	
+		}
+	}
+	function evlrChordTable () {
+		stopAllPlaying();
+		var notes = getNotes(parseInt(this.dataset.base), chords[this.dataset.type].notes);
+		mainPlayNotes(notes);	
+		console.log(this);
+	}
 }
 
-btnNext.focus();
-init();
-rngeVolume.value = actVolume * 100;
-setOnAllSamples("volume", actVolume);
 
-
-
-
-var random;
-// ==
-function init (options) {
+function initExercise (options) {
 	var i;
 
 	// Define plus chords that will be added to the basic set
@@ -259,14 +309,24 @@ function init (options) {
 			type: "dominant"
 		},
 		{
-			base: mod(nns[actScaleBase], 12),
-			notes: getNotes(mod(nns[actScaleBase], 12), chords.sus2.notes),
+			base: mod(nns[actScaleBase] + 9, 12),
+			notes: getNotes(mod(nns[actScaleBase] + 9, 12), chords.sus2.notes),
 			type: "sus2"
 		},
 		{
-			base: mod(nns[actScaleBase], 12),
-			notes: getNotes(mod(nns[actScaleBase], 12), chords.sus4.notes),
+			base: mod(nns[actScaleBase] + 9, 12),
+			notes: getNotes(mod(nns[actScaleBase] + 9, 12), chords.sus4.notes),
 			type: "sus4"
+		},
+		{
+			base: mod(nns[actScaleBase], 12),
+			notes: getNotes(mod(nns[actScaleBase], 12), chords.major6.notes),
+			type: "major6"
+		},
+		{
+			base: mod(nns[actScaleBase] +  9, 12),
+			notes: getNotes(mod(nns[actScaleBase] +  9, 12), chords.minor6.notes),
+			type: "minor6"
 		}
 	];
 
@@ -303,8 +363,6 @@ function init (options) {
 		btnChord.addEventListener("click", evlrPlayChord);
 		cntrChord.appendChild(btnChord);
 	}
-	// Preselect <select> elements
-	sctInstruments.options[0].selected = "selected";
 }
 
 function generateLabel (chord) {
@@ -488,7 +546,7 @@ function callOnAllSamples (myFunc, arg1, arg2, arg3, arg4) {
 function changeScale (event) {
 	actScaleBase = event.value;
 	actScale = getNotes(nns[actScaleBase], scales.major.noteDistances);
-	init();
+	initExercise();
 }
 
 function selectInstruments (sel) {
