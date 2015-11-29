@@ -5,9 +5,6 @@
 	<link rel="stylesheet" href="stylesheets/main.css">
 </head>
 <body>
-	<div>
-		<table id="chordtable"></table>
-	</div>
 	<div id="chordName">
 		Chord
 	</div>
@@ -21,6 +18,18 @@
 	<div class="btn big" tabindex="0" id="btnCadence">
 		Cadence
 	</div>
+	<select multiple id="sctInstruments" onchange="selectInstruments(this)">
+	</select>
+	<select multiple size="7" type="number" id="sctDegrees" onchange="selectDegrees(this)">
+		<option value="0" selected="selected">  I </option>
+		<option value="1" selected="selected"> 	II </option>
+		<option value="2" selected="selected"> 	III </option>
+		<option value="3" selected="selected">  IV </option>
+		<option value="4" selected="selected">  V </option>
+		<option value="5" selected="selected">	VI </option>
+		<option value="6" selected="selected">	VII </option>
+	</select>
+	<input type="range" id="rngeVolume" value="60" onchange="setVolume(this)">
 	<select id="sctScale" onchange="changeScale(this)">
 		<option value="C"> C  &ensp;/ a</option>
 		<option value="C#">C# 		/ a#</option>
@@ -35,18 +44,9 @@
 		<option value="A#">A# 		/ g</option>
 		<option value="B"> B  &ensp;/ g#</option>
 	</select>
-	<select multiple id="sctInstruments" onchange="selectInstruments(this)">
-	</select>
-	<select multiple size="7" type="number" id="sctDegrees" onchange="selectDegrees(this)">
-		<option value="0" selected="selected">  I </option>
-		<option value="1" selected="selected"> 	II </option>
-		<option value="2" selected="selected"> 	III </option>
-		<option value="3" selected="selected">  IV </option>
-		<option value="4" selected="selected">  V </option>
-		<option value="5" selected="selected">	VI </option>
-		<option value="6" selected="selected">	VII </option>
-	</select>
-	<input type="range" id="rngeVolume" value="60" onchange="setVolume(this)">
+	<div>
+		<table id="chordtable"></table>
+	</div>
 
 	<script src="./javascripts/application.js" type="text/javascript" charset="utf-8" async defer></script>
 </body>

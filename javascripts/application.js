@@ -216,7 +216,7 @@ var actState = 0;
 var actChords = []; // Chords chosen
 var actChord = 0; // actChords id
 var actVolume = 1;
-var selectedInstruments = ["guitar", "strings"];
+var selectedInstruments = ["piano"];
 var actScaleBase = "C";
 var actScaleType = "major";
 var actScale = getNotes(nns[actScaleBase], scales[actScaleType].noteDistances);
@@ -249,41 +249,7 @@ function init () {
 	sctInstruments.options[0].selected = "selected";
 	initExercise();
 	btnNext.focus();
-	// Prepare chordtable
-	var chordtable = document.getElementById("chordtable");
-	var theader = chordtable.createTHead();
-	var tbody = chordtable.createTBody();
-	var row = theader.insertRow(0);    
-	var cell = row.insertCell(0);
-	var rowLength = 0;
-
-	// Head
-	for (var j in chords) {
-		chordType2Colum[j] = rowLength;
-		cell = row.insertCell(-1);
-		cell.innerHTML = j;
-		rowLength++;
-	}
-	// Body
-	for (i = 0; i < 12; i++) {
-		row = tbody.insertRow(-1);
-		cell = row.insertCell(-1);
-		cell.innerHTML = tableDegrees[i];
-
-		for (j = 0; j < rowLength; j++) {
-			cell = row.insertCell(-1);
-			cell.dataset.type = theader.rows[0].cells[j+1].innerHTML;
-			cell.dataset.base = i;
-			cell.onclick = evlrChordTable;
-			cell.innerHTML = nns[i] + chords[theader.rows[0].cells[j+1].innerHTML].jazzNot; 	
-		}
-	}
-	function evlrChordTable () {
-		stopAllPlaying();
-		var notes = getNotes(parseInt(this.dataset.base), chords[this.dataset.type].notes);
-		mainPlayNotes(notes);	
-		console.log(this);
-	}
+	initChordtable();
 }
 
 
@@ -362,6 +328,45 @@ function initExercise (options) {
 		btnChord.innerHTML = label.label;
 		btnChord.addEventListener("click", evlrPlayChord);
 		cntrChord.appendChild(btnChord);
+	}
+}
+
+function initChordtable () {
+	// Prepare chordtable
+	var chordtable = document.getElementById("chordtable");
+	chordtable.innerHTML = "";
+	var theader = chordtable.createTHead();
+	var tbody = chordtable.createTBody();
+	var row = theader.insertRow(0);    
+	var cell = row.insertCell(0);
+	var rowLength = 0;
+
+	// Head
+	for (var j in chords) {
+		chordType2Colum[j] = rowLength;
+		cell = row.insertCell(-1);
+		cell.innerHTML = j;
+		rowLength++;
+	}
+	// Body
+	for (i = 0; i < 12; i++) {
+		row = tbody.insertRow(-1);
+		cell = row.insertCell(-1);
+		cell.innerHTML = tableDegrees[i];
+
+		for (j = 0; j < rowLength; j++) {
+			cell = row.insertCell(-1);
+			cell.dataset.type = theader.rows[0].cells[j+1].innerHTML;
+			cell.dataset.base = mod(i + actScale[0], 12);
+			cell.onclick = evlrChordTable;
+			cell.innerHTML = nns[mod(i + actScale[0], 12)] + chords[theader.rows[0].cells[j+1].innerHTML].jazzNot;	
+		}
+	}
+	function evlrChordTable () {
+		stopAllPlaying();
+		var notes = getNotes(parseInt(this.dataset.base), chords[this.dataset.type].notes);
+		mainPlayNotes(notes);	
+		console.log(this);
 	}
 }
 
@@ -546,7 +551,7 @@ function callOnAllSamples (myFunc, arg1, arg2, arg3, arg4) {
 function changeScale (event) {
 	actScaleBase = event.value;
 	actScale = getNotes(nns[actScaleBase], scales.major.noteDistances);
-	initExercise();
+	initChordtable();
 }
 
 function selectInstruments (sel) {
