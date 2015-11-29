@@ -219,7 +219,7 @@ var actVolume = 1;
 var selectedInstruments = ["piano"];
 var actScaleBase = "C";
 var actScaleType = "major";
-var actScale = getNotes(nns[actScaleBase], scales[actScaleType].noteDistances);
+var actScale;
 var chordType2Colum = {};
 var tableDegrees = ["I","I#","II","II#","III","IV","IV#","V","V#","VI","VI#","VII"];
 var localData = localStorage && localStorage.chordplayer && JSON.parse(localStorage.chordplayer);
@@ -235,6 +235,8 @@ var sctInstruments = document.getElementById("sctInstruments");
 var cntrChord = document.getElementById("chord-container");
 var rngeVolume = document.getElementById("rngeVolume");
 var chordtable = document.getElementById("chordtable");
+var sctScale = document.getElementById("sctScale");
+
 
 init();
 
@@ -251,6 +253,8 @@ function init () {
 	// Load selected chords from localStorage, or default;
 	if (localData) {
 		chordmatrix = localData.chordmatrix;
+		actScaleBase = localData.actScaleBase || "C";
+		actScaleType = localData.actScaleType || "major";
 	} else {
 		chordmatrix = [];
 		for (i = 0; i < 12; i++) {
@@ -268,16 +272,18 @@ function init () {
 		chordmatrix[9][1]  = 1;
 		chordmatrix[11][2] = 1;
 	}
+	actScale = getNotes(nns[actScaleBase], scales[actScaleType].noteDistances);
+
 	initChordtable();
-	// Init exercise
 	initExercise();
 	
+		
+	// Preselect <select> elements and prepare ui
 	
 	rngeVolume.value = actVolume * 100;
 	setOnAllSamples("volume", actVolume);
-	// Preselect <select> elements
+	sctScale.options[nns[actScaleBase]].selected = "selected";
 	sctInstruments.options[0].selected = "selected";
-	// initExercise();
 	btnNext.focus();
 	
 }
@@ -293,11 +299,12 @@ function initExercise (options) {
 	for (i = 0; i < chordmatrix.length; i++) {
 		for (var j = 0; j < chordmatrix[i].length; j++) {
 			if (chordmatrix[i][j]) {
+				var base = mod(actScale[0] + i,12);
 				actChords.push({
 					degree: i,
-					base: actScale[0] + i,
+					base: base,
 					type: chordtable.rows[i+1].cells[j + 1].dataset.type,
-					notes: getNotes(actScale[0] + i, chords[chordType2Colum[j]].notes),
+					notes: getNotes(base, chords[chordType2Colum[j]].notes),
 				});
 			}
 		}
@@ -570,11 +577,7 @@ function callOnAllSamples (myFunc, arg1, arg2, arg3, arg4) {
  	}
 }
 
-function changeScale (event) {
-	actScaleBase = event.value;
-	actScale = getNotes(nns[actScaleBase], scales.major.noteDistances);
-	initChordtable();
-}
+
 
 function selectInstruments (sel) {
 	var opts = [];
@@ -606,7 +609,24 @@ btnCadence.onclick = function () {
 };
 btnInitExercise.onclick = function () {
 	initExercise();
-}
+};
+
+sctScale.onchange = function changeScale() {
+	actScaleBase = this.value;
+	var data2bSaved;
+	if (localStorage) {
+		if (localStorage.chordplayer) {
+			data2bSaved = JSON.parse(localStorage.chordplayer);
+		} else {
+			data2bSaved = {};
+		}
+		data2bSaved.actScaleBase = actScaleBase;
+		localStorage.chordplayer = JSON.stringify(data2bSaved);
+	}
+
+	actScale = getNotes(nns[actScaleBase], scales.major.noteDistances);
+	initChordtable();
+};
 
 var allBtn = document.getElementsByClassName("btn");
 for (var i = 0; i < allBtn.length; i++) {

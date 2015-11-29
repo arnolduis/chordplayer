@@ -21,7 +21,7 @@
 	<select multiple id="sctInstruments" onchange="selectInstruments(this)">
 	</select>
 	<input type="range" id="rngeVolume" value="60" onchange="setVolume(this)">
-	<select id="sctScale" onchange="changeScale(this)">
+	<select id="sctScale">
 		<option value="C"> C  &ensp;/ a</option>
 		<option value="C#">C# 		/ a#</option>
 		<option value="D"> D  &ensp;/ b</option>
@@ -41,7 +41,7 @@
 <!-- 	<button id="btsaveExercise">
 		Save Exercise
 	</button> -->
-	<div>
+	<div class="chordtableContainer">
 		<table id="chordtable"></table>
 	</div>
 

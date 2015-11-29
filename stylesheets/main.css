@@ -63,6 +63,7 @@ body {
 }
 table {
 	width: 80%;
+	height: 80%;
 	margin: auto;
 	border-collapse: collapse;
     -moz-user-select: none; 
@@ -71,10 +72,15 @@ table {
     -o-user-select: none; 
 }
 table, th, td {
-	font-size: small;
+	font-size: large;
 	border: 1px solid black;
 }
 
 tbody td {
+	/*padding: 5px 0px 5px 0px;*/
 	cursor: pointer;	
+}
+
+#chordtable, .chordtableContainer {
+	height: 80%;
 }
