@@ -645,8 +645,15 @@ function listenKybd (event) {
 
 document.body.onkeydown = function (event) {
 	var key = event.keyCode || event.which;
-	if (key < 56) {
-		playChord(key-49);
+	if (key) {
+		stopAllPlaying();
+		var origborder = cntrChord.children[key-49].style.border;
+		cntrChord.children[key-49].style.border = "2px solid black";
+		setTimeout(function () {
+			cntrChord.children[key-49].style.border = origborder;
+		},100);
+		var notes = actChords[key-49].notes;
+		mainPlayNotes(notes);
 	}
 };
 
