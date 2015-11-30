@@ -236,6 +236,8 @@ var cntrChord = document.getElementById("chord-container");
 var rngeVolume = document.getElementById("rngeVolume");
 var chordtable = document.getElementById("chordtable");
 var sctScale = document.getElementById("sctScale");
+var chordtableplay = document.getElementById("chordtableplay");
+
 
 
 init();
@@ -373,18 +375,20 @@ function initChordtable () {
 	}
 
 	function evlrChordTable () {
-		stopAllPlaying();
-		var selectedInt = mod(parseInt(this.dataset.selected) + 1, 2);
-		chordmatrix[this.dataset.degree][this.dataset.cmxcol] = selectedInt;
-		if (selectedInt) {
-			this.style.backgroundColor = "red";
+		if (chordtableplay.checked) {
+			stopAllPlaying();
+			var notes = getNotes(parseInt(this.dataset.degree + actScale[0]), chords[this.dataset.type].notes);
+			mainPlayNotes(notes);
 		} else {
-			this.style.backgroundColor = "white";
+			var selectedInt = mod(parseInt(this.dataset.selected) + 1, 2);
+			chordmatrix[this.dataset.degree][this.dataset.cmxcol] = selectedInt;
+			if (selectedInt) {
+				this.style.backgroundColor = "red";
+			} else {
+				this.style.backgroundColor = "white";
+			}
+			this.dataset.selected = selectedInt;
 		}
-		this.dataset.selected = selectedInt;
-		var notes = getNotes(parseInt(this.dataset.base), chords[this.dataset.type].notes);
-		// mainPlayNotes(notes);	
-		console.log(this);
 	}
 }
 
