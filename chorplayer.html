@@ -18,9 +18,9 @@
 	<div class="btn big" tabindex="0" id="btnCadence">
 		Cadence
 	</div>
-	<select multiple id="sctInstruments" onchange="selectInstruments(this)">
+	<select multiple id="sctInstruments">
 	</select>
-	<input type="range" id="rngeVolume" value="60" onchange="setVolume(this)">
+	<input type="range" id="rngVolume" value="60">
 	<select id="sctScale">
 		<option value="C"> C  &ensp;/ a</option>
 		<option value="C#">C# 		/ a#</option>
@@ -46,6 +46,6 @@
 		<table id="chordtable"></table>
 	</div>
 
-	<script src="./javascripts/application.js" type="text/javascript" charset="utf-8" async defer></script>
+	<script src="./javascripts/chordplayerBundle.js" type="text/javascript" charset="utf-8" async defer></script>
 </body>
 </html>
